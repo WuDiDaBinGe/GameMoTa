@@ -113,6 +113,7 @@
     <ClCompile Include="GameMain.cpp" />
     <ClCompile Include="haha.cpp" />
     <ClCompile Include="MoTaGame.cpp" />
+    <ClCompile Include="test1.cpp" />
     <ClCompile Include="TinyEngine\T_AI.cpp" />
     <ClCompile Include="TinyEngine\T_Audio.cpp" />
     <ClCompile Include="TinyEngine\T_Display.cpp" />
