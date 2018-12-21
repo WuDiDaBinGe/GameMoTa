@@ -110,6 +110,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameMain.cpp" />
+    <ClCompile Include="haha.cpp" />
+    <ClCompile Include="MoTaGame.cpp" />
+    <ClCompile Include="TinyEngine\T_AI.cpp" />
+    <ClCompile Include="TinyEngine\T_Audio.cpp" />
+    <ClCompile Include="TinyEngine\T_Display.cpp" />
+    <ClCompile Include="TinyEngine\T_Engine.cpp" />
+    <ClCompile Include="TinyEngine\T_Graph.cpp" />
+    <ClCompile Include="TinyEngine\T_Map.cpp" />
+    <ClCompile Include="TinyEngine\T_Menu.cpp" />
+    <ClCompile Include="TinyEngine\T_Scene.cpp" />
+    <ClCompile Include="TinyEngine\T_Sprite.cpp" />
+    <ClCompile Include="TinyEngine\T_Util.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MoTaGame.h" />
+    <ClInclude Include="TinyEngine\T_AI.h" />
+    <ClInclude Include="TinyEngine\T_Audio.h" />
+    <ClInclude Include="TinyEngine\T_Config.h" />
+    <ClInclude Include="TinyEngine\T_Display.h" />
+    <ClInclude Include="TinyEngine\T_Engine.h" />
+    <ClInclude Include="TinyEngine\T_Graph.h" />
+    <ClInclude Include="TinyEngine\T_Layer.h" />
+    <ClInclude Include="TinyEngine\T_Map.h" />
+    <ClInclude Include="TinyEngine\T_Menu.h" />
+    <ClInclude Include="TinyEngine\T_Scene.h" />
+    <ClInclude Include="TinyEngine\T_Sprite.h" />
+    <ClInclude Include="TinyEngine\T_Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
