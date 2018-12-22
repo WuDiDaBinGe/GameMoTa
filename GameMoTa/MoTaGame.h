@@ -1,5 +1,6 @@
 #pragma once
 #include "TinyEngine\T_Engine.h"
+#include "TinyEngine\T_Menu.h"
 class MoTaGame :
 	public T_Engine
 {
