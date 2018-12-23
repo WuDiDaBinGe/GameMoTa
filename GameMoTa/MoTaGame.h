@@ -1,13 +1,16 @@
 #pragma once
 #include "TinyEngine\T_Engine.h"
 #include "TinyEngine\T_Menu.h"
+#include "TinyEngine\T_Scene.h"
 class MoTaGame :
 	public T_Engine
 {
 private:
 	//游戏有关变量----------------------
 	int wnd_width, wnd_height;
-	//游戏角色类相关变量----------------
+	int helpPageIndex;			//帮助菜单标号
+	//游戏对象类相关变量----------------
+	T_Scene* t_scene;			//游戏场景
 	T_Menu* gameMenu;			//游戏菜单
 public:
 	virtual ~MoTaGame(void);
