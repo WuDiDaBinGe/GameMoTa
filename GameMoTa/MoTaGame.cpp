@@ -163,7 +163,7 @@ void MoTaGame::GameKeyAction(int Action)
 							break;
 						case 1:
 							//添加游戏帮助代码
-							GameState == GAME_HELP;
+							GameState = GAME_HELP;
 							delete gameMenu;
 							gameMenu = NULL;
 							LoadGameMenu(GAME_HELP);
@@ -216,7 +216,7 @@ void MoTaGame::GameMouseAction(int x, int y, int Action)
 						break;
 					case 1:
 						//添加游戏帮助代码
-						GameState == GAME_HELP;
+						GameState = GAME_HELP;
 						delete gameMenu;
 						gameMenu = NULL;
 						LoadGameMenu(GAME_HELP);

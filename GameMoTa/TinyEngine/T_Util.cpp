@@ -9,6 +9,8 @@
 //*******************************************************************
 
 #include "T_Util.h"
+#include<iostream>
+using namespace std;
 
 wchar_t * T_Util::int_to_wstring(int i)
 {
@@ -135,4 +137,60 @@ void T_Util::GetBevelSpeed(IN POINT startPT, IN POINT destPT, IN int Speed,
 	if(startPT.y-destPT.y == 0) yRatio = 0;
 	if(startPT.x-destPT.x > 0) xRatio = -xRatio;
 	if(startPT.y-destPT.y > 0) yRatio = -yRatio;
+}
+
+string T_Util::Trim(string & str)
+{
+	str.erase(0, str.find_first_not_of("\t\r\n"));
+	str.erase(str.find_last_not_of("\t\r\n") + 1);
+	return str;
+}
+
+wstring T_Util::StringToWstring(const string & str)
+{
+	wstring wstr(str.length(), L' ');
+    copy(str.begin(), str.end(), wstr.begin());
+    return wstr;
+}
+
+vector<MOTASPINFO> T_Util::ParseCsv(const char * filePath)
+{
+	ifstream fin(filePath);
+	vector<MOTASPINFO> motaInfos;
+	string line;
+	while (getline(fin,line))
+	{
+		istringstream sin(line);
+		MOTASPINFO temp;
+		vector<string>fields;
+		string field;
+		while (getline(sin, field, ',')) //将字符串流sin中的字符读入到field字符串中，以逗号为分隔符
+		{
+			fields.push_back(field); //将刚刚读取的字符串添加到向量fields中
+		}
+		temp.ImaPath = StringToWstring(Trim(fields[0]));
+		temp.Aggressivity = stoi(Trim(fields[1]));
+		temp.Defense = stoi(Trim(fields[2]));
+		temp.LifeValue = stoi(Trim(fields[3]));
+		temp.SpBasicInfo.Score  = stoi(Trim(fields[4]));
+		temp.Money= stoi(Trim(fields[5]));
+		temp.SpBasicInfo.X= stoi(Trim(fields[6]));
+		temp.SpBasicInfo.Y= stoi(Trim(fields[7]));
+		temp.SpBasicInfo.Active = false;
+		temp.SpBasicInfo.Alpha = 255;
+		temp.SpBasicInfo.Dead = false;
+		temp.SpBasicInfo.Rotation = TRANS_NONE;
+		temp.SpBasicInfo.Dir = DIR_DOWN;
+		temp.SpBasicInfo.Speed = 0;
+		temp.SpBasicInfo.Ratio = 1.0f;
+		temp.SpBasicInfo.Visible = true;
+		temp.SpBasicInfo.Level = 0;
+		motaInfos.push_back(temp);
+	}
+	return motaInfos;
+}
+
+int main()
+{
+	T_Util::ParseCsv("test.csv");
 }

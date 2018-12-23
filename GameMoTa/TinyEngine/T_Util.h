@@ -52,4 +52,13 @@ public:
 		IN POINT startPT, IN POINT destPT, IN int Speed, 
 		OUT int& xRatio, OUT int& yRatio
 	);
+
+	//删除字符串中的空格，制表符等无效字符
+	static string Trim(string &str);
+
+	//string转wstring
+	static wstring  StringToWstring(const string &str);
+
+	//解析csv文件,返回SPRITEINFO容器
+	static vector<MOTASPINFO> ParseCsv(const char * filePath);
 };

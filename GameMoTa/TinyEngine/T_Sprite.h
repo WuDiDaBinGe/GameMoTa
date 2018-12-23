@@ -49,6 +49,11 @@ protected:
 	int		level;					// 初始游戏等级
 	int		score;					// 游戏分值
 
+	int   money;						//金钱
+	int   aggressivity;				      //角色攻击力
+	int   defense;						 //角色防御力
+	int   lifeValue;						 //角色生命值
+
 	DWORD	startTime;				// 计时开始时间
 	DWORD	endTime;				// 计时结束时间
 
@@ -121,6 +126,18 @@ public:
 
 	int GetScore(){ return score; }						// 获得分值
 	void SetScore(int scr){ score = scr; }				// 设置分值
+	
+	int GetMoney() { return money; }	//获得金钱
+	int SetMoney(int mon) { money = mon; }//设置金钱
+
+	int GetAggressivity() { return aggressivity; }		//获得攻击力
+	int SetAggressivity(int agg) { aggressivity = agg; }   //设置攻击力
+
+	int GetDefense() {return defense;}			//获得防御力
+	int SetDefense(int def) { return defense; }	//设置防御力
+
+	int GetLifeValue() { return lifeValue; }		//获得生命
+	int SetLifeValue(int lif) { lifeValue = lif; } //设置生命
 
 	//……………………………………………………………………………………
 	// 与计时相关的操作
@@ -201,6 +218,17 @@ public:
 
 	// 初始化本类对象
 	void Initiate(SPRITEINFO spInfo);
+	
+	//扩展初始化
+	void Initiate(MOTASPINFO motaSpInfo)
+	{
+		 Initiate(motaSpInfo.SpBasicInfo);
+		 money = motaSpInfo.Money;
+		 aggressivity = motaSpInfo.Aggressivity;
+		 defense = motaSpInfo.Defense;
+		 lifeValue = motaSpInfo.LifeValue;
+	}
+
 	// 本类对象绘制
 	void Draw(HDC hdc);	
 
