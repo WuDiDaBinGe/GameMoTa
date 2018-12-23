@@ -17,6 +17,9 @@ public:
 		int winwidth = 800, int winheight = 600);
 	//与游戏加载相关函数--------------------------
 	void LoadGameMenu(int type);			//加载不同的菜单函数
+	//游戏状态更新类函数---------------------------
+	//游戏细节处理函数-----------------------------
+	void displayInfo(HDC hdc);
 	//其他函数-----------------------------------
 	void setMenuPara(wstring* menuItem,			//菜单项文字数组
 					 int itemSize,				//菜单项个数

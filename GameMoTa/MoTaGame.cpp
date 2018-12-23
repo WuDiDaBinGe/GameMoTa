@@ -25,6 +25,37 @@ void MoTaGame::LoadGameMenu(int type)
 		setMenuPara(menuItems,4,250,70,0);
 	}
 }
+//显示信息函数
+void MoTaGame::displayInfo(HDC hdc)
+{
+	int FontHeight = 0;			//字号
+	Gdiplus::RectF rect;
+	wstring Content = L"";
+	switch (GameState)
+	{
+	case GAME_START:
+		{
+		wchar_t *GameName = L"魔塔 V1.0";
+		rect.X = 0.00;
+		rect.Y = 0.00;
+		rect.Width = (float)wnd_width;
+		rect.Height = (float)wnd_height / 4;
+		FontHeight = 36;
+		T_Graph::PaintText(hdc, rect, GameName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
+
+		wchar_t *Notice = L"本游戏使用TinyEngine引擎开发";
+		rect.X = 0.00;
+		rect.Y= (float)wnd_height / 9;
+		rect.Width = (float)wnd_width;
+		rect.Height = (float)wnd_height / 5;
+		FontHeight = 10;
+		T_Graph::PaintText(hdc, rect, Notice, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
+		}
+	break;
+	default:
+		break;
+	}
+}
 //设置菜单参数函数
 void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, int posType)
 {
@@ -62,7 +93,6 @@ void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, 
 
 
 	*/
-
 	MENU_INFO menuinfo;
 	menuinfo.align = 1;							//对齐方式
 	menuinfo.space = MENU_SPACE;				//菜单项之间的间隔距离
@@ -101,6 +131,7 @@ void MoTaGame::GamePaint(HDC hdc)
 	{
 
 	}
+	displayInfo(hdc);
 }
 void MoTaGame::GameKeyAction(int Action)
 {
