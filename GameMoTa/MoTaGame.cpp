@@ -60,6 +60,7 @@ void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, 
 
 		在这里添加菜单声音代码
 
+
 	*/
 
 	MENU_INFO menuinfo;
