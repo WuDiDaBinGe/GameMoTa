@@ -10,6 +10,7 @@ MoTaGame::MoTaGame(HINSTANCE h_instance, LPCTSTR sz_winclass, LPCTSTR sz_title,
 
 	wnd_width = winwidth;
 	wnd_height = winheight;
+	t_scene = new T_Scene();
 }
 //记载菜单函数
 void MoTaGame::LoadGameMenu(int type)
@@ -36,6 +37,27 @@ void MoTaGame::LoadGameMenu(int type)
 		gameMenu->SetMenuBkg(L".\\res\\Menu\\menubkg.jpg", 200);
 		gameMenu->SetBtnBmp(L".\\res\\Menu\\button.png", 250, 70);
 		setMenuPara(menuItems, 1, 250, 70, 2);
+	}
+}
+//加载地图
+void MoTaGame::LoadMap(const char* MapFilepath)
+{
+	t_scene->LoadTxtMap(MapFilepath);
+	scn_width = t_scene->getSceneLayers()->back().layer->GetWidth();
+	scn_height = t_scene->getSceneLayers()->back().layer->GetHeight();
+	//视图初始位置以地图作为参照
+	int scn_x = (wnd_width - scn_width) / 2;
+	int scn_y = (wnd_height - scn_height) / 2;
+	//将游戏地图初始化为屏幕中央位置
+	t_scene->InitScene(scn_x, scn_y, scn_width, scn_height, wnd_width, wnd_height);
+	//将所有地图图层定位在屏幕中央
+	SCENE_LAYERS::iterator p;
+	for (p = t_scene->getSceneLayers()->begin(); p != t_scene->getSceneLayers()->end(); p++)
+	{
+		if (p->layer->ClassName() == "T_Map")
+		{
+			p->layer->SetPosition(scn_x, scn_y);
+		}
 	}
 }
 //显示信息函数
@@ -139,6 +161,17 @@ void MoTaGame::displayInfo(HDC hdc)
 			T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
 		}
 	break;
+	case GAME_RUN:
+	{
+		wchar_t *GameName = L"魔塔       V1.0";
+		rect.X = 0.00;
+		rect.Y = 0.00;
+		rect.Width = (float)wnd_width;
+		rect.Height = (float)wnd_height / 4;
+		FontHeight = 36;
+		T_Graph::PaintText(hdc, rect, GameName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
+	}
+	break;
 	default:
 		break;
 	}
@@ -195,6 +228,7 @@ void MoTaGame::GameInit()
 {
 	GameState = GAME_START;
 	LoadGameMenu(GAME_START);
+	LoadMap(".\\map\\map_level1.txt");
 }
 void MoTaGame::GameLogic()
 {
@@ -207,14 +241,12 @@ void MoTaGame::GamePaint(HDC hdc)
 	//非游戏运行状态
 	if (GameState!=GAME_RUN)
 	{
-	
-			if (gameMenu != NULL) gameMenu->DrawMenu(hdc);	 
-
+		if (gameMenu != NULL) gameMenu->DrawMenu(hdc);	
 	}
 	//游戏运行状态
 	if (GameState==GAME_RUN)
 	{
-
+		t_scene->Draw(hdc,0,0);
 	}
 	displayInfo(hdc);
 }
@@ -247,10 +279,10 @@ void MoTaGame::GameKeyAction(int Action)
 						{
 						case 0://添加开始游戏代码
 							GameState = GAME_RUN;
+							break;
 							/*
 							这里添加游戏开始声音代码
 							*/
-							break;
 						case 1:
 							//添加游戏帮助代码
 							GameState = GAME_HELP;
@@ -282,7 +314,7 @@ void MoTaGame::GameKeyAction(int Action)
 							helpPageIndex = helpPageIndex - 1;
 							if (helpPageIndex<0)
 							{
-								helpPageIndex++;
+								helpPageIndex=2;
 							}
 							break;
 						case 1://返回主菜单
@@ -379,7 +411,7 @@ void MoTaGame::GameMouseAction(int x, int y, int Action)
 						helpPageIndex = helpPageIndex - 1;
 						if (helpPageIndex<0)
 						{
-							helpPageIndex++;
+							helpPageIndex=2;
 						}
 						break;
 					case 1://返回主菜单
