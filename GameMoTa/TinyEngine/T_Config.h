@@ -136,11 +136,13 @@ typedef struct
 //魔塔游戏扩展角色信息
 typedef struct {
 	SPRITEINFO  SpBasicInfo;		//基本信息
-	int	Money;						   //怪物值多少钱或玩家拥有的钱
-	int   Aggressivity;				      //角色攻击力
-	int   Defense;						 //角色防御力
-	int   LifeValue;						 //角色生命值
-	wstring ImaPath;					 //文件路径
+	int			Money;				//怪物值多少钱或玩家拥有的钱
+	int			Aggressivity;		//角色攻击力
+	int			Defense;			//角色防御力
+	int			LifeValue;			//角色生命值
+	wstring		ImaPath;			//文件路径
+	int			RoleType;			//角色类型
+	int			DoorOpen;			//为门设计的,门是否开标志
 }MOTASPINFO;
 
 //地图每个图层信息

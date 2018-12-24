@@ -2,6 +2,7 @@
 #include "TinyEngine\T_Engine.h"
 #include "TinyEngine\T_Menu.h"
 #include "TinyEngine\T_Scene.h"
+typedef vector<T_Sprite*> vSpriteSet;
 class MoTaGame :
 	public T_Engine
 {
@@ -21,6 +22,7 @@ private:
 	T_Scene* t_scene;			//游戏场景
 	T_Menu* gameMenu;			//游戏菜单
 	T_Sprite* player;			//游戏玩家
+	vSpriteSet  npc_set;				//npc集合
 	//游戏帧动画序列--------------------------------
 	static int FRAME_LEFT[20];		//左方向的帧动画
 	static int FRAME_RIGHT[20];		//右方向的帧动画
@@ -38,10 +40,13 @@ public:
 	void LoadMap(const char* MapFilepath);		//加载地图
 	void LoadPlayer();							//加载玩家角色
 	void LoadImageRes();						//加载游戏图片
+	void LoadNpc(const char * filePath);	    //加载npc
 	//游戏状态更新类函数---------------------------
-
+	void UpdatePlayerPos(int dir);	   //更新玩家位置
+	void UpdateFrames();			   //更新动作帧函数
 	//游戏细节处理函数-----------------------------
 	void displayInfo(HDC hdc);
+	void Collide(T_Sprite *sp);
 	//其他函数-----------------------------------
 	void setMenuPara(wstring* menuItem,	//菜单项文字数组
 					 int itemSize,		//菜单项个数

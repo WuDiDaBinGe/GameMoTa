@@ -158,7 +158,7 @@ vector<MOTASPINFO> T_Util::ParseCsv(const char * filePath)
 	ifstream fin(filePath);
 	vector<MOTASPINFO> motaInfos;
 	string line;
-	while (getline(fin,line))
+	while (getline(fin, line))
 	{
 		istringstream sin(line);
 		MOTASPINFO temp;
@@ -172,10 +172,11 @@ vector<MOTASPINFO> T_Util::ParseCsv(const char * filePath)
 		temp.Aggressivity = stoi(Trim(fields[1]));
 		temp.Defense = stoi(Trim(fields[2]));
 		temp.LifeValue = stoi(Trim(fields[3]));
-		temp.SpBasicInfo.Score  = stoi(Trim(fields[4]));
-		temp.Money= stoi(Trim(fields[5]));
-		temp.SpBasicInfo.X= stoi(Trim(fields[6]));
-		temp.SpBasicInfo.Y= stoi(Trim(fields[7]));
+		temp.SpBasicInfo.Score = stoi(Trim(fields[4]));
+		temp.Money = stoi(Trim(fields[5]));
+		temp.SpBasicInfo.X = stoi(Trim(fields[6])) * 33;
+		temp.SpBasicInfo.Y = stoi(Trim(fields[7])) * 33;
+		temp.RoleType = stoi(Trim(fields[8]));
 		temp.SpBasicInfo.Active = false;
 		temp.SpBasicInfo.Alpha = 255;
 		temp.SpBasicInfo.Dead = false;
@@ -185,12 +186,9 @@ vector<MOTASPINFO> T_Util::ParseCsv(const char * filePath)
 		temp.SpBasicInfo.Ratio = 1.0f;
 		temp.SpBasicInfo.Visible = true;
 		temp.SpBasicInfo.Level = 0;
+		temp.DoorOpen = 0;
 		motaInfos.push_back(temp);
 	}
 	return motaInfos;
 }
 
-int main()
-{
-	T_Util::ParseCsv("test.csv");
-}

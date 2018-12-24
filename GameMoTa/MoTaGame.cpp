@@ -14,6 +14,10 @@ MoTaGame::MoTaGame(HINSTANCE h_instance, LPCTSTR sz_winclass, LPCTSTR sz_title,
 	wnd_width = winwidth;
 	wnd_height = winheight;
 	t_scene = new T_Scene();
+	yellow_key_num = 1;
+	red_key_num = 1;
+	blue_key_num = 1;
+	currentLevel = 1;
 }
 //记载菜单函数
 void MoTaGame::LoadGameMenu(int type)
@@ -107,6 +111,132 @@ void MoTaGame::LoadImageRes()
 	if (redKey == NULL) redKey = new T_Graph(L".\\res\\Npc\\redKey.png");
 	if (blueKey == NULL) blueKey = new T_Graph(L".\\res\\Npc\\blueKey.png");
 	if (player_img == NULL) player_img = new T_Graph(L".\\res\\Player\\Player.png");
+}
+//从文件中加载NPC信息
+void MoTaGame::LoadNpc(const char * filePath)
+{
+	vector<MOTASPINFO> npcInfos;
+	npcInfos = T_Util::ParseCsv(filePath);
+	GAMELAYER gameLayer;
+	vector<MOTASPINFO>::iterator it;
+	for (it = npcInfos.begin(); it < npcInfos.end(); it++)
+	{
+		T_Sprite *sp = new T_Sprite(it->ImaPath, 32, 32);
+		it->SpBasicInfo.X = it->SpBasicInfo.X + (wnd_width - scn_width) / 2;
+		it->SpBasicInfo.Y = it->SpBasicInfo.Y + (wnd_height - scn_height) / 2;
+		sp->Initiate(*it);
+		sp->SetLayerTypeID(LAYER_NPC);
+		npc_set.push_back(sp);
+		gameLayer.layer = sp;
+		gameLayer.type_id = LAYER_NPC;
+		gameLayer.z_order = t_scene->getSceneLayers()->size() + 1;
+		gameLayer.layer->setZorder(gameLayer.z_order);
+		t_scene->Append(gameLayer);
+		sp = NULL;
+	}
+}
+//更新玩家位置
+void MoTaGame::UpdatePlayerPos(int dir)
+{
+	if (player == NULL)return;
+	int nextStepX, nextStepY;
+	int SpeedX = 0, SpeedY = 0;
+	if (player->IsVisible() == true && player->IsActive() == true && player->IsDead() == false)
+	{
+		switch (dir)
+		{
+		case DIR_LEFT:
+			SpeedX = -player->GetSpeed();
+			SpeedY = 0;
+			nextStepX = player->GetX() - player->GetSpeed();
+			if (nextStepX <= 0) SpeedX = 0 - player->GetX();
+			break;
+		case DIR_RIGHT:
+			SpeedX = player->GetSpeed();
+			SpeedY = 0;
+			nextStepX = player->GetX() + player->GetRatioSize().cx + player->GetSpeed();
+			if (nextStepX >= wnd_width)SpeedX = wnd_width - player->GetRatioSize().cx - player->GetX();
+			break;
+		case DIR_UP:
+			SpeedX = 0;
+			SpeedY = -player->GetSpeed();
+			nextStepY = player->GetY() - player->GetSpeed();
+			if (nextStepY >= wnd_height)SpeedY = 0 - player->GetY();
+			break;
+		case DIR_DOWN:
+			SpeedX = 0;
+			SpeedY = player->GetSpeed();
+			nextStepY = player->GetY() + player->GetRatioSize().cy + player->GetSpeed();
+			if (nextStepY >= wnd_height)SpeedY = wnd_height - player->GetRatioSize().cy - player->GetY();
+			break;
+		}
+		int x = player->GetX();
+		int y = player->GetY();
+		if (!player->CollideWith(t_scene->getBarrier()))player->Move(SpeedX, SpeedY);
+		if (player->CollideWith(t_scene->getBarrier()))player->SetPosition(x, y);
+		vSpriteSet::iterator it;
+		for (it = npc_set.begin(); it < npc_set.end(); it++)
+		{
+			if (player->CollideWith((*it), 0))
+			{
+				Collide((*it));
+				player->SetPosition(x, y);
+			}
+		}
+
+	}
+}
+//更新帧状态函数
+void MoTaGame::UpdateFrames()
+{
+	vSpriteSet::iterator p;
+	if (npc_set.size() > 0)
+	{
+		for (p = npc_set.begin(); p != npc_set.end(); p++)
+		{
+			if ((*p)->GetRoleType() == 0)
+			{
+				(*p)->LoopFrame();
+			}
+			if ((*p)->GetDoorOpen() == 1)
+			{
+				bool endFrame = (*p)->LoopFrameOnce();
+				if (endFrame)
+				{
+					(*p)->SetDead(true);
+				}
+			}
+		}
+	}
+
+	if (npc_set.size() > 0)
+	{
+		for (p = npc_set.begin(); p != npc_set.end(); )
+		{
+			if ((*p)->IsDead() == true)
+			{
+				SCENE_LAYERS::iterator q;
+				for (q = t_scene->getSceneLayers()->begin(); q != t_scene->getSceneLayers()->end(); q++)
+				{
+					if ((*q).layer == (*p))
+					{
+						q = t_scene->getSceneLayers()->erase(q);
+						break;
+					}
+				}
+				delete(*p);
+				p = npc_set.erase(p);
+			}
+			else {
+				p++;
+			}
+		}
+	}
+
+	if (player != NULL)
+	{
+		if (player->IsVisible() == true && player->IsActive() == true)player->LoopFrame();
+	}
 }
 //显示信息函数
 void MoTaGame::displayInfo(HDC hdc)
@@ -218,7 +348,7 @@ void MoTaGame::displayInfo(HDC hdc)
 		//画背景框
 		T_Graph::PaintBlank(hdc, x, y, title_wh * 4, 33 * 5 + 12, Color::Black, 100);
 		//玩家图片
-		player_img->PaintRegion(player_img->GetBmpHandle(),hdc,x+title_wh+10,y,0,0,player_img->GetImageWidth()/4,player_img->GetImageHeight()/4,1.3);
+		player_img->PaintRegion(player_img->GetBmpHandle(),hdc,x+title_wh+10,y,0,0,player_img->GetImageWidth()/4,player_img->GetImageHeight()/4,(double)1.3);
 		//玩家的基本信息
 		Content = L"生命  ";
 		Content.append(T_Util::int_to_wstring(player->GetLifeValue()));
@@ -289,6 +419,59 @@ void MoTaGame::displayInfo(HDC hdc)
 		break;
 	}
 }
+//碰撞检测函数
+void MoTaGame::Collide(T_Sprite * sp)
+{
+	switch (sp->GetRoleType())
+	{
+	case 0:
+		//打斗处理
+	case 1:
+		if (yellow_key_num > 0)
+		{
+			sp->SetDoorOpen(1);
+			yellow_key_num--;
+		}
+		break;
+	case 2:
+		if (red_key_num > 0)
+		{
+			sp->SetDoorOpen(1);
+			red_key_num--;
+		}
+		break;
+	case 3:
+		if (blue_key_num > 0)
+		{
+			sp->SetDoorOpen(1);
+			blue_key_num--;
+		}
+		break;
+	case 4:
+		yellow_key_num++;
+		sp->SetDead(true);
+		break;
+	case 5:
+		red_key_num++;
+		sp->SetDead(true);
+		break;
+	case 6:
+		blue_key_num++;
+		sp->SetDead(true);
+		break;
+	case 7:
+		player->SetAggressivity(player->GetAggressivity() + sp->GetAggressivity());  //攻击力增加
+		player->SetDefense(player->GetDefense() + sp->GetDefense());						//防御力增加
+		player->SetLifeValue(player->GetLifeValue() + sp->GetLifeValue());			    //生命值增加
+		sp->SetDead(true);
+		break;
+
+	default:
+		break;
+	}
+
+
+}
 //设置菜单参数函数
 void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, int posType)
 {
@@ -344,9 +527,13 @@ void MoTaGame::GameInit()
 	LoadMap(".\\map\\map_level1.txt");
 	LoadImageRes();
 	LoadPlayer();
+	LoadNpc(".\\npcfile\\level1.csv");
 }
 void MoTaGame::GameLogic()
 {
+	GameKeyAction();
+	UpdateFrames();
+	UpdatePlayerPos(player->GetDir());
 }
 void MoTaGame::GameEnd()
 {
@@ -367,6 +554,48 @@ void MoTaGame::GamePaint(HDC hdc)
 }
 void MoTaGame::GameKeyAction(int Action)
 {
+	/*玩家控制*/
+	if (Action == KEY_SYS_NONE)
+	{
+		if (GameState == GAME_RUN)
+		{
+			if (CheckKey(VK_LEFT) && !CheckKey(VK_DOWN) && !CheckKey(VK_UP))
+			{
+				player->SetActive(true);
+				player->SetSequence(FRAME_LEFT, 20);
+				player->SetDir(DIR_LEFT);
+			}
+
+			if (CheckKey(VK_RIGHT) && !CheckKey(VK_DOWN) && !CheckKey(VK_UP))
+			{
+				player->SetActive(true);
+				player->SetSequence(FRAME_RIGHT, 20);
+				player->SetDir(DIR_RIGHT);
+			}
+
+			if (CheckKey(VK_UP) && !CheckKey(VK_LEFT) && !CheckKey(VK_RIGHT))
+			{
+				player->SetActive(true);
+				player->SetSequence(FRAME_UP, 20);
+				player->SetDir(DIR_UP);
+			}
+
+			if (CheckKey(VK_DOWN) && !CheckKey(VK_LEFT) && !CheckKey(VK_RIGHT))
+			{
+				player->SetActive(true);
+				player->SetSequence(FRAME_DOWN, 20);
+				player->SetDir(DIR_DOWN);
+			}
+			if (CheckKey(VK_LEFT) == false && CheckKey(VK_RIGHT) == false &&
+				CheckKey(VK_UP) == false && CheckKey(VK_DOWN) == false)
+			{
+				player->SetActive(false);
+			}
+
+		}
+	}
+
+
 	if (Action==KEY_DOWN)
 	{
 		if (GameState!=GAME_RUN)
