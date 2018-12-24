@@ -47,7 +47,7 @@ public:
 	//游戏细节处理函数-----------------------------
 	void DisplayInfo(HDC hdc);			//画游戏的各种信息
 	void Collide(T_Sprite *sp);			//碰撞逻辑处理
-	void DisplayCombat(T_Sprite* sp);	//打斗画面显示
+	void DisplayCombat(HDC hdc);	//打斗画面显示
 	//其他函数-----------------------------------
 	void setMenuPara(wstring* menuItem,	//菜单项文字数组
 					 int itemSize,		//菜单项个数

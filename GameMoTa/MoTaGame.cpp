@@ -440,6 +440,8 @@ void MoTaGame::Collide(T_Sprite * sp)
 	switch (sp->GetRoleType())
 	{
 	case 0:
+		
+		break;
 		//打斗处理
 	case 1:
 		if (yellow_key_num > 0)
@@ -488,10 +490,59 @@ void MoTaGame::Collide(T_Sprite * sp)
 
 
 }
-//处理
-void MoTaGame::DisplayCombat(T_Sprite * sp)
+//打斗时的画面显示
+void MoTaGame::DisplayCombat(HDC hdc)
 {
-
+	wstring Content = L"";
+	Gdiplus::RectF rect;
+	int FontHeight=0;
+	int title_wh = 33;
+	int x = (wnd_width-scn_width)/2+title_wh;
+	int y = (wnd_height - scn_height) / 2+title_wh;
+	//红色边框
+	//T_Graph::PaintBlank(hdc, 0, 0, title_wh * 16+20, title_wh * 8+20,Color::OrangeRed,100);
+	//黑色背景
+	T_Graph::PaintBlank(hdc, x, y, title_wh * 16, title_wh *8, Color::Black, 190);
+	//怪物战斗信息
+	Content = L"生命值：79";
+	Content.append(L"\n\n攻击力：20");
+	Content.append(L"\n\n防御力：5");
+	rect.X =(float) (x + 100);
+	rect.Y = (float)(y + 20);
+	rect.Width = (float)title_wh*3;
+	rect.Height = (float)title_wh * 6;
+	FontHeight = 10;
+	T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+	//VS
+	wchar_t *vs = L"V\nS";
+	rect.X = rect.X + rect.Width+15;
+	rect.Width = (float)title_wh * 3;
+	rect.Height = (float)title_wh * 6;
+	FontHeight = 20;
+	T_Graph::PaintText(hdc, rect, vs, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
+	//勇士战斗战斗
+	Content = L"79：生命值";
+	Content.append(L"\n\n20:攻击力");
+	Content.append(L"\n\n5：防御力");
+	rect.X = (float)(x+ title_wh * 13 - 100);
+	rect.Y = (float)(y + 20);
+	rect.Width = (float)title_wh * 3;
+	rect.Height = (float)title_wh * 6;
+	FontHeight = 10;
+	T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+	//怪物
+	FontHeight = 20;
+	wchar_t *NpcName = L"怪 物";
+	rect.X = (float)(x + 10);
+	rect.Y = (float)(y + title_wh * 6);
+	rect.Width = (float)title_wh * 3;
+	rect.Height = (float)title_wh * 2+5;
+	T_Graph::PaintText(hdc, rect, NpcName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+	//勇士
+	wchar_t *PlayName = L"勇 士";
+	rect.X = (float)(x + 13*title_wh-10);
+	rect.Y = (float)(y + title_wh * 6);
+	T_Graph::PaintText(hdc, rect, PlayName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
 }
 //设置菜单参数函数
 void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, int posType)
@@ -573,6 +624,7 @@ void MoTaGame::GamePaint(HDC hdc)
 		t_scene->Draw(hdc,0,0);
 	}
 	DisplayInfo(hdc);
+	DisplayCombat(hdc);
 }
 void MoTaGame::GameKeyAction(int Action)
 {
