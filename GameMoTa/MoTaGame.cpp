@@ -1,7 +1,10 @@
 #include "MoTaGame.h"
 
 
-
+int MoTaGame::FRAME_DOWN[20] = { 0,0,1,1,1,2,2,2,3,3,0,0,1,1,1,2,2,2,3,3 };
+int MoTaGame::FRAME_LEFT[20] = { 4,4,5,5,5,6,6,6,7,7,4,4,5,5,5,6,6,6,7,7 };
+int MoTaGame::FRAME_RIGHT[20] = { 8,8,9,9,9,10,10,10,11,11,8,8,9,9,9,10,10,10,11,11 };
+int MoTaGame::FRAME_UP[20] = { 12,12,13,13,13,14,14,14,15,15,12,12,13,13,13,14,14,14,15,15 };
 MoTaGame::MoTaGame(HINSTANCE h_instance, LPCTSTR sz_winclass, LPCTSTR sz_title,
 	WORD icon, WORD sm_icon, int winwidth, int winheight)
 	:T_Engine(h_instance, sz_winclass, sz_title, icon, sm_icon, winwidth, winheight)
@@ -59,6 +62,51 @@ void MoTaGame::LoadMap(const char* MapFilepath)
 			p->layer->SetPosition(scn_x, scn_y);
 		}
 	}
+}
+void MoTaGame::LoadPlayer()
+{
+	GAMELAYER gameLayer;
+	player = new T_Sprite(L".\\res\\player\\player.png", 32, 32);
+	SPRITEINFO spinfo;
+	spinfo.Active = false;
+	spinfo.Alpha = 250;
+	spinfo.Dead = false;
+	spinfo.Dir = DIR_UP;
+	spinfo.Level = 0;
+	spinfo.Ratio = 1.0f;
+	spinfo.Rotation = TRANS_NONE;
+	spinfo.Score = 0;
+	spinfo.Speed = 33;
+	spinfo.X = (wnd_width - scn_width) / 2 + 33 * 11;
+	spinfo.Y = (wnd_height - scn_height) / 2 + 11 * 33;
+	spinfo.Visible = true;
+	MOTASPINFO playerInfo;
+	playerInfo.SpBasicInfo = spinfo;
+
+	playerInfo.Aggressivity = 14;
+	playerInfo.Defense = 14;
+	playerInfo.LifeValue = 800;
+	playerInfo.Money = 0;
+
+	player->Initiate(playerInfo);
+	player->SetSequence(FRAME_DOWN, 20);
+	player->SetLayerTypeID(LAYER_PLY);
+
+
+	gameLayer.layer = player;
+	gameLayer.type_id = LAYER_PLY;
+	gameLayer.z_order = t_scene->getSceneLayers()->size() + 1;
+	gameLayer.layer->setZorder(gameLayer.z_order);
+	t_scene->Append(gameLayer);
+
+}
+//加载游戏图片资源
+void MoTaGame::LoadImageRes()
+{
+	if (yellowKey == NULL) yellowKey = new T_Graph(L".\\res\\Npc\\yellowKey.png");
+	if (redKey == NULL) redKey = new T_Graph(L".\\res\\Npc\\redKey.png");
+	if (blueKey == NULL) blueKey = new T_Graph(L".\\res\\Npc\\blueKey.png");
+	if (player_img == NULL) player_img = new T_Graph(L".\\res\\Player\\Player.png");
 }
 //显示信息函数
 void MoTaGame::displayInfo(HDC hdc)
@@ -150,7 +198,7 @@ void MoTaGame::displayInfo(HDC hdc)
 			Content = L"魔塔V1.0 \n";
 			Content.append(L"版本：1.0.0 \n");
 			Content.append(L"作者：6栋222宿舍\n");
-			Content.append(L"Copyright 2018 \n\n");
+			Content.append(L"Copyright 2018  \n");
 			Content.append(L"All Rights Reserved\n");
 			Content.append(L"保留所有权利\n");
 			rect.X = 60.00;
@@ -162,15 +210,80 @@ void MoTaGame::displayInfo(HDC hdc)
 		}
 	break;
 	case GAME_RUN:
-	{
-		wchar_t *GameName = L"魔塔       V1.0";
-		rect.X = 0.00;
-		rect.Y = 0.00;
-		rect.Width = (float)wnd_width;
-		rect.Height = (float)wnd_height / 4;
-		FontHeight = 36;
-		T_Graph::PaintText(hdc, rect, GameName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
-	}
+		{
+		int title_wh = 33;
+		
+		int x= (wnd_width - scn_width) / 2 + title_wh;
+		int y = (wnd_height - scn_height) / 2 + title_wh;
+		//画背景框
+		T_Graph::PaintBlank(hdc, x, y, title_wh * 4, 33 * 5 + 12, Color::Black, 100);
+		//玩家图片
+		player_img->PaintRegion(player_img->GetBmpHandle(),hdc,x+title_wh+10,y,0,0,player_img->GetImageWidth()/4,player_img->GetImageHeight()/4,1.3);
+		//玩家的基本信息
+		Content = L"生命  ";
+		Content.append(T_Util::int_to_wstring(player->GetLifeValue()));
+		Content.append(L"\n攻击  ");
+		Content.append(T_Util::int_to_wstring(player->GetAggressivity()));
+		Content.append(L"\n防御  ");
+		Content.append(T_Util::int_to_wstring(player->GetDefense()));
+		Content.append(L"\n金币  ");
+		Content.append(T_Util::int_to_wstring(player->GetMoney()));
+		Content.append(L"\n经验  ");
+		Content.append(T_Util::int_to_wstring(player->GetScore()));
+		rect.X = (float)x;
+		rect.Y = float(y+ title_wh);
+		rect.Height = (float)title_wh *5;
+		rect.Width = 132;
+		FontHeight = 14;
+		T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+		
+		//钥匙信息
+		//画背景框
+		T_Graph::PaintBlank(hdc, x, y + title_wh * 6, title_wh * 4, 33 * 3, Color::Black, 100);
+		//画黄色钥匙
+		yellowKey->PaintRegion(yellowKey->GetBmpHandle(),hdc,x,y+ title_wh*6,0,0,yellowKey->GetImageWidth(),yellowKey->GetImageHeight(),1);
+		//画黄色钥匙数量
+		Content = T_Util::int_to_wstring(yellow_key_num);
+		
+		rect.X = (float)x+title_wh*2;
+		rect.Y = (float)y + title_wh * 6;
+		rect.Width = (float)title_wh * 2;
+		rect.Height = (float)title_wh;
+		T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+		//画红色钥匙
+		redKey->PaintRegion(redKey->GetBmpHandle(), hdc, x, y + title_wh * 7, 0, 0, redKey->GetImageWidth(), redKey->GetImageHeight(), 1);
+		//画红色钥匙数量
+		Content = T_Util::int_to_wstring(red_key_num);
+	
+		rect.X = (float)x + title_wh * 2;
+		rect.Y = (float)y + title_wh * 7;
+		rect.Width = (float)title_wh * 2;
+		rect.Height = (float)title_wh;
+		T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+		//画蓝色钥匙
+		blueKey->PaintRegion(blueKey->GetBmpHandle(), hdc, x, y + title_wh *8, 0, 0, blueKey->GetImageWidth(), blueKey->GetImageHeight(), 1);
+		//画蓝色钥匙数量
+		Content = T_Util::int_to_wstring(blue_key_num);
+		
+		rect.X = (float)x + title_wh * 2;
+		rect.Y = (float)y + title_wh * 8;
+		rect.Width = (float)title_wh * 2;
+		rect.Height = (float)title_wh;
+		T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+		
+
+		//画所在的层数
+		//画背景框
+		T_Graph::PaintBlank(hdc, x, y + title_wh * 10, title_wh*4, title_wh, Color::Black, 100);
+		Content = L"第 ";
+		Content.append(T_Util::int_to_wstring(currentLevel));
+		Content.append(L" 层\n");
+		rect.X = (float)x;
+		rect.Y = (float)y + title_wh * 10;
+		rect.Width =(float) 4 * title_wh;
+		rect.Height = (float)title_wh;
+		T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
+		}
 	break;
 	default:
 		break;
@@ -229,6 +342,8 @@ void MoTaGame::GameInit()
 	GameState = GAME_START;
 	LoadGameMenu(GAME_START);
 	LoadMap(".\\map\\map_level1.txt");
+	LoadImageRes();
+	LoadPlayer();
 }
 void MoTaGame::GameLogic()
 {
