@@ -177,10 +177,25 @@ void MoTaGame::UpdatePlayerPos(int dir)
 		vSpriteSet::iterator it;
 		for (it = npc_set.begin(); it < npc_set.end(); it++)
 		{
-			if (player->CollideWith((*it), 0))
+			if (player->CollideWith((*it)))
 			{
-				Collide((*it));
-				player->SetPosition(x, y);
+				//K726 K106 K1620 K570
+				//防止两把钥匙打开一个门
+				int type = (*it)->GetRoleType();
+				if (type==1||type==2||type==3)
+				{
+					if ((*it)->GetDoorOpen() == 0)
+					{
+						Collide((*it));
+						player->SetPosition(x, y);
+					}
+				}
+				else
+				{
+					Collide((*it));
+					player->SetPosition(x, y);
+				}
+				
 			}
 		}
 
@@ -239,7 +254,7 @@ void MoTaGame::UpdateFrames()
 	}
 }
 //显示信息函数
-void MoTaGame::displayInfo(HDC hdc)
+void MoTaGame::DisplayInfo(HDC hdc)
 {
 	int FontHeight = 0;			//字号
 	Gdiplus::RectF rect;
@@ -430,6 +445,7 @@ void MoTaGame::Collide(T_Sprite * sp)
 		if (yellow_key_num > 0)
 		{
 			sp->SetDoorOpen(1);
+			sp->SetActive(false);
 			yellow_key_num--;
 		}
 		break;
@@ -460,9 +476,9 @@ void MoTaGame::Collide(T_Sprite * sp)
 		sp->SetDead(true);
 		break;
 	case 7:
-		player->SetAggressivity(player->GetAggressivity() + sp->GetAggressivity());  //攻击力增加
-		player->SetDefense(player->GetDefense() + sp->GetDefense());						//防御力增加
-		player->SetLifeValue(player->GetLifeValue() + sp->GetLifeValue());			    //生命值增加
+		player->SetAggressivity(player->GetAggressivity() + sp->GetAggressivity()); //攻击力增加
+		player->SetDefense(player->GetDefense() + sp->GetDefense());				//防御力增加
+		player->SetLifeValue(player->GetLifeValue() + sp->GetLifeValue());			//生命值增加
 		sp->SetDead(true);
 		break;
 
@@ -470,6 +486,11 @@ void MoTaGame::Collide(T_Sprite * sp)
 		break;
 	}
 
+
+}
+//处理
+void MoTaGame::DisplayCombat(T_Sprite * sp)
+{
 
 }
 //设置菜单参数函数
@@ -532,8 +553,9 @@ void MoTaGame::GameInit()
 void MoTaGame::GameLogic()
 {
 	GameKeyAction();
-	UpdateFrames();
 	UpdatePlayerPos(player->GetDir());
+	UpdateFrames();
+	
 }
 void MoTaGame::GameEnd()
 {
@@ -550,49 +572,55 @@ void MoTaGame::GamePaint(HDC hdc)
 	{
 		t_scene->Draw(hdc,0,0);
 	}
-	displayInfo(hdc);
+	DisplayInfo(hdc);
 }
 void MoTaGame::GameKeyAction(int Action)
 {
 	/*玩家控制*/
 	if (Action == KEY_SYS_NONE)
 	{
-		if (GameState == GAME_RUN)
+		player->SetEndTime(GetTickCount());
+		if (player->GetEndTime() - player->GetStartTime() >= 50)
 		{
-			if (CheckKey(VK_LEFT) && !CheckKey(VK_DOWN) && !CheckKey(VK_UP))
+			player->SetStartTime(player->GetEndTime());
+			if (GameState == GAME_RUN)
 			{
-				player->SetActive(true);
-				player->SetSequence(FRAME_LEFT, 20);
-				player->SetDir(DIR_LEFT);
-			}
+				if (CheckKey(VK_LEFT) && !CheckKey(VK_DOWN) && !CheckKey(VK_UP))
+				{
+					player->SetActive(true);
+					player->SetSequence(FRAME_LEFT, 20);
+					player->SetDir(DIR_LEFT);
+				}
 
-			if (CheckKey(VK_RIGHT) && !CheckKey(VK_DOWN) && !CheckKey(VK_UP))
-			{
-				player->SetActive(true);
-				player->SetSequence(FRAME_RIGHT, 20);
-				player->SetDir(DIR_RIGHT);
-			}
+				if (CheckKey(VK_RIGHT) && !CheckKey(VK_DOWN) && !CheckKey(VK_UP))
+				{
+					player->SetActive(true);
+					player->SetSequence(FRAME_RIGHT, 20);
+					player->SetDir(DIR_RIGHT);
+				}
 
-			if (CheckKey(VK_UP) && !CheckKey(VK_LEFT) && !CheckKey(VK_RIGHT))
-			{
-				player->SetActive(true);
-				player->SetSequence(FRAME_UP, 20);
-				player->SetDir(DIR_UP);
-			}
+				if (CheckKey(VK_UP) && !CheckKey(VK_LEFT) && !CheckKey(VK_RIGHT))
+				{
+					player->SetActive(true);
+					player->SetSequence(FRAME_UP, 20);
+					player->SetDir(DIR_UP);
+				}
 
-			if (CheckKey(VK_DOWN) && !CheckKey(VK_LEFT) && !CheckKey(VK_RIGHT))
-			{
-				player->SetActive(true);
-				player->SetSequence(FRAME_DOWN, 20);
-				player->SetDir(DIR_DOWN);
-			}
-			if (CheckKey(VK_LEFT) == false && CheckKey(VK_RIGHT) == false &&
-				CheckKey(VK_UP) == false && CheckKey(VK_DOWN) == false)
-			{
-				player->SetActive(false);
-			}
+				if (CheckKey(VK_DOWN) && !CheckKey(VK_LEFT) && !CheckKey(VK_RIGHT))
+				{
+					player->SetActive(true);
+					player->SetSequence(FRAME_DOWN, 20);
+					player->SetDir(DIR_DOWN);
+				}
+				if (CheckKey(VK_LEFT) == false && CheckKey(VK_RIGHT) == false &&
+					CheckKey(VK_UP) == false && CheckKey(VK_DOWN) == false)
+				{
+					player->SetActive(false);
+				}
 
+			}
 		}
+		
 	}
 
 
@@ -693,6 +721,8 @@ void MoTaGame::GameKeyAction(int Action)
 		}
 
 	}
+
+
 }
 void MoTaGame::GameMouseAction(int x, int y, int Action)
 {
