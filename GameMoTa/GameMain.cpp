@@ -13,7 +13,7 @@ int WINAPI WinMain(HINSTANCE h_instance, HINSTANCE hPrevInstance,
 	// 必须将父类的静态指针指向构造好的子类
 	T_Engine::pEngine = mygame;
 	// 设置游戏画面的刷新频率
-	mygame->SetFrame(20);
+	mygame->SetFrame(10);
 
 	// 如果程序要以全屏幕方式启动，请添加下面这行代码
 	// 如果以正常窗口启动，请删除或注释掉下面这行代码

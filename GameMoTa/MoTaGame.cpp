@@ -14,7 +14,7 @@ MoTaGame::MoTaGame(HINSTANCE h_instance, LPCTSTR sz_winclass, LPCTSTR sz_title,
 	wnd_width = winwidth;
 	wnd_height = winheight;
 	t_scene = new T_Scene();
-	yellow_key_num = 1;
+	yellow_key_num = 100;
 	red_key_num = 1;
 	blue_key_num = 1;
 	currentLevel = 1;
@@ -253,6 +253,53 @@ void MoTaGame::UpdateFrames()
 		if (player->IsVisible() == true && player->IsActive() == true)player->LoopFrame();
 	}
 }
+//战斗函数
+void MoTaGame::Battling()
+{
+	
+	if (battleNpc->GetLifeValue() == 0)
+	{
+		battleNpc->SetDead(true);
+		GameState = GAME_RUN;
+		player->SetMoney(battleNpc->GetMoney()+player->GetMoney());
+		player->SetScore(battleNpc->GetScore()+player->GetScore());
+	}
+	if (battleNpc != NULL)
+	{
+		player->SetEndTime(GetTickCount());
+		if (player->GetEndTime() - player->GetStartTime() >= 400)
+		{
+			player->SetStartTime(player->GetEndTime());
+			if (player->GetDefense() >= battleNpc->GetAggressivity())
+			{
+				int tempLV = battleNpc->GetLifeValue() - (player->GetAggressivity() - battleNpc->GetDefense());
+				if (tempLV < 0)
+				{
+					tempLV = 0;
+				}
+				battleNpc->SetLifeValue(tempLV);
+			}
+			else {
+				int pa = player->GetAggressivity();
+				int pd = player->GetDefense();
+				int pl = player->GetLifeValue();
+				int sa = battleNpc->GetAggressivity();
+				int sd = battleNpc->GetDefense();
+				int sl = battleNpc->GetLifeValue();
+				int tempNLV = sl - (pa - sd);
+				int tempPLV = pl - (sa - pd);
+				if (tempNLV < 0)
+				{
+					tempNLV = 0;
+				}
+				battleNpc->SetLifeValue(tempNLV);
+				player->SetLifeValue(tempPLV);
+			}
+		}
+		
+		
+	}
+}
 //显示信息函数
 void MoTaGame::DisplayInfo(HDC hdc)
 {
@@ -430,6 +477,17 @@ void MoTaGame::DisplayInfo(HDC hdc)
 		T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
 		}
 	break;
+	case GAME_BATTLE:
+	{
+		wchar_t *GameName = L"魔塔 V1.0";
+		rect.X = 0.00;
+		rect.Y = 0.00;
+		rect.Width = (float)wnd_width;
+		rect.Height = (float)wnd_height / 4;
+		FontHeight = 36;
+		T_Graph::PaintText(hdc, rect, GameName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
+	}
+	break;
 	default:
 		break;
 	}
@@ -440,7 +498,11 @@ void MoTaGame::Collide(T_Sprite * sp)
 	switch (sp->GetRoleType())
 	{
 	case 0:
-		
+		if (IsBattle(sp))
+		{
+			battleNpc = sp;
+			GameState = GAME_BATTLE;
+		}
 		break;
 		//打斗处理
 	case 1:
@@ -491,7 +553,7 @@ void MoTaGame::Collide(T_Sprite * sp)
 
 }
 //打斗时的画面显示
-void MoTaGame::DisplayCombat(HDC hdc)
+void MoTaGame::DisplayCombat(T_Sprite *sp,HDC hdc)
 {
 	wstring Content = L"";
 	Gdiplus::RectF rect;
@@ -504,9 +566,12 @@ void MoTaGame::DisplayCombat(HDC hdc)
 	//黑色背景
 	T_Graph::PaintBlank(hdc, x, y, title_wh * 16, title_wh *8, Color::Black, 190);
 	//怪物战斗信息
-	Content = L"生命值：79";
-	Content.append(L"\n\n攻击力：20");
-	Content.append(L"\n\n防御力：5");
+	Content = L"生命值：";
+	Content.append(T_Util::int_to_wstring(sp->GetLifeValue()));
+	Content.append(L"\n\n攻击力:");
+	Content.append(T_Util::int_to_wstring(sp->GetAggressivity()));
+	Content.append(L"\n\n防御力：");
+	Content.append(T_Util::int_to_wstring(sp->GetDefense()));
 	rect.X =(float) (x + 100);
 	rect.Y = (float)(y + 20);
 	rect.Width = (float)title_wh*3;
@@ -521,9 +586,12 @@ void MoTaGame::DisplayCombat(HDC hdc)
 	FontHeight = 20;
 	T_Graph::PaintText(hdc, rect, vs, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
 	//勇士战斗战斗
-	Content = L"79：生命值";
-	Content.append(L"\n\n20:攻击力");
-	Content.append(L"\n\n5：防御力");
+	Content = T_Util::int_to_wstring(player->GetLifeValue());
+	Content.append(L":生命\n\n");
+	Content.append(T_Util::int_to_wstring(player->GetAggressivity()));
+	Content.append(L":攻击力\n\n");
+	Content.append(T_Util::int_to_wstring(player->GetDefense()));
+	Content.append(L":防御力");
 	rect.X = (float)(x+ title_wh * 13 - 100);
 	rect.Y = (float)(y + 20);
 	rect.Width = (float)title_wh * 3;
@@ -543,6 +611,48 @@ void MoTaGame::DisplayCombat(HDC hdc)
 	rect.X = (float)(x + 13*title_wh-10);
 	rect.Y = (float)(y + title_wh * 6);
 	T_Graph::PaintText(hdc, rect, PlayName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+}
+//玩家是否能与该怪物战斗
+BOOL MoTaGame::IsBattle(T_Sprite * sp)
+{
+	int pa = player->GetAggressivity();
+	int pd = player->GetDefense();
+	int pl = player->GetLifeValue();
+	//怪物信息
+	int sa = sp->GetAggressivity();
+	int sd = sp->GetDefense();
+	int sl = sp->GetLifeValue();
+
+	//玩家攻击力小于怪物防御力不能战斗
+	if (pa <= sd)
+	{
+		return false;
+	}
+	else
+	{
+
+		//怪物攻击力小于玩家防御力，可以战斗
+		if (sa <= pd)
+		{
+			return true;
+		}
+
+		while (sl>0 && pl>0)
+		{
+			sl = sl - (pa - sd);
+			pl = pl - (sa - pd);
+		}
+		//如果不能战胜怪物，那么不能战斗
+		if (pl <= 0)
+		{
+			return false;
+		}
+		//如果可以战胜怪物，那么可以战斗
+		if (sl <= 0)
+		{
+			return true;
+		}
+	}
 }
 //设置菜单参数函数
 void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, int posType)
@@ -603,9 +713,16 @@ void MoTaGame::GameInit()
 }
 void MoTaGame::GameLogic()
 {
-	GameKeyAction();
-	UpdatePlayerPos(player->GetDir());
-	UpdateFrames();
+	if (GameState==GAME_RUN)
+	{
+		GameKeyAction();
+		UpdatePlayerPos(player->GetDir());
+		UpdateFrames();
+	}
+	if (GameState==GAME_BATTLE)
+	{
+		Battling();
+	}
 	
 }
 void MoTaGame::GameEnd()
@@ -623,8 +740,12 @@ void MoTaGame::GamePaint(HDC hdc)
 	{
 		t_scene->Draw(hdc,0,0);
 	}
+	if (GameState==GAME_BATTLE)
+	{
+		t_scene->Draw(hdc,0,0);
+		DisplayCombat(battleNpc,hdc);
+	}
 	DisplayInfo(hdc);
-	DisplayCombat(hdc);
 }
 void MoTaGame::GameKeyAction(int Action)
 {
