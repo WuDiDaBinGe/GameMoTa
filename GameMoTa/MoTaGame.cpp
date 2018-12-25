@@ -611,6 +611,11 @@ void MoTaGame::DisplayCombat(T_Sprite *sp,HDC hdc)
 	rect.X = (float)(x + 13*title_wh-10);
 	rect.Y = (float)(y + title_wh * 6);
 	T_Graph::PaintText(hdc, rect, PlayName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+	//画怪兽的图片
+	//T_Graph::PaintFrame(sp->GetImage()->GetBmpHandle(), hdc,x,y+2*title_wh,4,1,32,32,3);
+	T_Graph::PaintRegion(sp->GetImage()->GetBmpHandle(),hdc,x,y+2*title_wh,0,0,32,32,3);
+	//画玩家图片
+	T_Graph::PaintRegion(player->GetImage()->GetBmpHandle(),hdc,x+13*title_wh,y+2*title_wh,0,0,32,32,3);
 }
 //玩家是否能与该怪物战斗
 BOOL MoTaGame::IsBattle(T_Sprite * sp)
