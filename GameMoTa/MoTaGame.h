@@ -2,7 +2,9 @@
 #include "TinyEngine\T_Engine.h"
 #include "TinyEngine\T_Menu.h"
 #include "TinyEngine\T_Scene.h"
+#define  TOTAL_LEVEL    10
 typedef vector<T_Sprite*> vSpriteSet;
+typedef pair<int, int>Pos;
 class MoTaGame :
 	public T_Engine
 {
@@ -13,6 +15,13 @@ private:
 	int helpPageIndex;			//帮助菜单标号
 	int blue_key_num, yellow_key_num, red_key_num;//玩家所拥有的三种三色钥匙的数目
 	int currentLevel;			//当前楼层
+	int arrivedLevel;			//到达过的楼层
+	static const char * mapfiles[TOTAL_LEVEL];		//地图文件
+	static const char *npcfiles[TOTAL_LEVEL];		//npc文件
+	static Pos  startPos[TOTAL_LEVEL];	//每一层的入口楼梯坐标
+	static Pos  startNpcPos[TOTAL_LEVEL];	//每一层的npc开始坐标
+	static Pos endPos[TOTAL_LEVEL];	//每一层的出口楼梯坐标
+
 	//与图片资源相关的变量--------------------------
 	T_Graph* yellowKey;			//状态栏黄色钥匙图片
 	T_Graph* redKey;			//状态栏红色钥匙图片
@@ -24,6 +33,8 @@ private:
 	T_Sprite* player;			//游戏玩家
 	T_Sprite * battleNpc;		//正在战斗的npc
 	vSpriteSet  npc_set;		//npc集合
+	vector<vSpriteSet> npc_vec;		//全部楼层的npc集合
+
 	//游戏帧动画序列--------------------------------
 	static int FRAME_LEFT[20];		//左方向的帧动画
 	static int FRAME_RIGHT[20];		//右方向的帧动画
@@ -42,6 +53,7 @@ public:
 	void LoadPlayer();							//加载玩家角色
 	void LoadImageRes();						//加载游戏图片
 	void LoadNpc(const char * filePath);	    //加载npc
+	void LoadGameLevel(int level);
 	//游戏状态更新类函数---------------------------
 	void UpdatePlayerPos(int dir);	   //更新玩家位置
 	void UpdateFrames();			   //更新动作帧函数

@@ -5,6 +5,14 @@ int MoTaGame::FRAME_DOWN[20] = { 0,0,1,1,1,2,2,2,3,3,0,0,1,1,1,2,2,2,3,3 };
 int MoTaGame::FRAME_LEFT[20] = { 4,4,5,5,5,6,6,6,7,7,4,4,5,5,5,6,6,6,7,7 };
 int MoTaGame::FRAME_RIGHT[20] = { 8,8,9,9,9,10,10,10,11,11,8,8,9,9,9,10,10,10,11,11 };
 int MoTaGame::FRAME_UP[20] = { 12,12,13,13,13,14,14,14,15,15,12,12,13,13,13,14,14,14,15,15 };
+
+const char *MoTaGame::mapfiles[TOTAL_LEVEL] = {".\\map\\map_level1.txt",".\\map\\map_level2.txt",".\\map\\map_level3.txt" };
+const char* MoTaGame::npcfiles[TOTAL_LEVEL] = { ".\\npcfile\\level1.csv",".\\npcfile\\level2.csv",".\\npcfile\\level3.csv" };
+Pos MoTaGame::startPos[TOTAL_LEVEL] = { Pos(0,0),Pos(6 * 33,33) };
+Pos MoTaGame::endPos[TOTAL_LEVEL] = { Pos(6*33,33),Pos(6*33,11*33) };
+Pos MoTaGame::startNpcPos[TOTAL_LEVEL] = {Pos(11*33,11*33),Pos(6*33,2*33)};
+
+
 MoTaGame::MoTaGame(HINSTANCE h_instance, LPCTSTR sz_winclass, LPCTSTR sz_title,
 	WORD icon, WORD sm_icon, int winwidth, int winheight)
 	:T_Engine(h_instance, sz_winclass, sz_title, icon, sm_icon, winwidth, winheight)
@@ -17,7 +25,8 @@ MoTaGame::MoTaGame(HINSTANCE h_instance, LPCTSTR sz_winclass, LPCTSTR sz_title,
 	yellow_key_num = 100;
 	red_key_num = 1;
 	blue_key_num = 1;
-	currentLevel = 1;
+	currentLevel = 0;
+	arrivedLevel = 0;
 }
 //记载菜单函数
 void MoTaGame::LoadGameMenu(int type)
@@ -102,7 +111,6 @@ void MoTaGame::LoadPlayer()
 	gameLayer.z_order = t_scene->getSceneLayers()->size() + 1;
 	gameLayer.layer->setZorder(gameLayer.z_order);
 	t_scene->Append(gameLayer);
-
 }
 //加载游戏图片资源
 void MoTaGame::LoadImageRes()
@@ -134,6 +142,48 @@ void MoTaGame::LoadNpc(const char * filePath)
 		t_scene->Append(gameLayer);
 		sp = NULL;
 	}
+	npc_vec.push_back(npc_set);
+}
+
+//加载关卡资源
+void MoTaGame::LoadGameLevel(int level)
+{
+
+	//如果到达的关卡是一个新的关卡
+	if (level > arrivedLevel)
+	{
+		SCENE_LAYERS::iterator p;
+		for (p = t_scene->getSceneLayers()->begin(); p != t_scene->getSceneLayers()->end(); p++)
+		{
+			if (p->layer->ClassName() == "T_Map")
+			{
+				p = t_scene->getSceneLayers()->erase(p);
+				break;
+			}
+		}
+		LoadNpc(npcfiles[level]);
+		LoadMap(mapfiles[level]);
+		npc_set = npc_vec[level];
+	}
+	//如果关卡是曾经到达过的关卡，则加载原来的资源
+	else
+	{
+		SCENE_LAYERS::iterator p;
+		for (p = t_scene->getSceneLayers()->begin(); p != t_scene->getSceneLayers()->end(); p++)
+		{
+			if (p->layer->ClassName() == "T_Map")
+			{
+				p = t_scene->getSceneLayers()->erase(p);
+				break;
+			}
+		}
+		LoadMap(mapfiles[level]);
+		npc_set = npc_vec[level];
+
+	}
+	int tempNpcX = (wnd_width - scn_width) / 2 + startNpcPos[level].first;
+	int tempNpcY = (wnd_height - scn_height) / 2 + startNpcPos[level].second;
+	player->SetPosition(tempNpcX,tempNpcY);
 }
 //更新玩家位置
 void MoTaGame::UpdatePlayerPos(int dir)
@@ -197,6 +247,30 @@ void MoTaGame::UpdatePlayerPos(int dir)
 				}
 				
 			}
+		}
+
+		int tempEndX = (wnd_width - scn_width) / 2 +endPos[currentLevel].first;
+		int tempEndY = (wnd_height - scn_height) / 2 + endPos[currentLevel].second;
+
+		int tempStartX = (wnd_width - scn_width) / 2 + startPos[currentLevel].first;
+		int tempStartY = (wnd_height - scn_height) / 2 + startPos[currentLevel].second;
+		
+
+		//进入下一个关卡
+		if (player->GetX() == tempEndX&&player->GetY() == tempEndY)
+		{
+			currentLevel++;
+			LoadGameLevel(currentLevel);
+			if (currentLevel > arrivedLevel)
+			{
+				arrivedLevel = currentLevel;
+			}
+		}
+		//返回上一个关卡
+		if (player->GetX() ==tempStartX&&player->GetY()==tempStartY)
+		{
+			currentLevel--;
+			LoadGameLevel(currentLevel);
 		}
 
 	}
