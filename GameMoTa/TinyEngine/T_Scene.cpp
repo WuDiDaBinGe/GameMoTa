@@ -285,7 +285,7 @@ void T_Scene::Remove(GAMELAYER gm_layer)
 void T_Scene::RemoveAll()
 {	
 	//清除图层数据
-	SCENE_LAYERS::iterator vp = sceneLayers.begin();
+	/*SCENE_LAYERS::iterator vp = sceneLayers.begin();
 	for (; vp != sceneLayers.end();) 
 	{
 		if(vp->layer)
@@ -296,7 +296,7 @@ void T_Scene::RemoveAll()
 		}
 		
 		
-	}
+	}*/
 	sceneLayers.clear();
 	//使用swap,清除元素并回收内存
 	//清除容器并最小化它的容量
