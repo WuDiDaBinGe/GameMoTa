@@ -28,6 +28,8 @@ MoTaGame::MoTaGame(HINSTANCE h_instance, LPCTSTR sz_winclass, LPCTSTR sz_title,
 	blue_key_num = 1;
 	currentLevel = 0;
 	arrivedLevel = 0;
+	handbook = false;
+	pause_State = 0;
 }
 //记载菜单函数
 void MoTaGame::LoadGameMenu(int type)
@@ -721,6 +723,58 @@ void MoTaGame::DisplayCombat(T_Sprite *sp,HDC hdc)
 	//画玩家图片
 	T_Graph::PaintRegion(player->GetImage()->GetBmpHandle(),hdc,x+13*title_wh,y+2*title_wh,0,0,32,32,3);
 }
+//显示怪物手册
+void MoTaGame::DisplayHandBook(HDC hdc, vSpriteSet npcSet)
+{
+	int title_wh = 33;
+	int x = (wnd_width - scn_width) / 2 + title_wh;
+	int y = (wnd_height - scn_height) / 2 + title_wh;
+	int count = 0;
+	Gdiplus::RectF rect;
+	int FontHeight;
+	//画图形
+	T_Graph::PaintBlank(hdc, x, y, title_wh * 16, title_wh * 11, Color::Black, 190);
+	vSpriteSet tempSet;
+	vSpriteSet::iterator it;
+	for (it = npcSet.begin(); it != npcSet.end(); it++)
+	{
+		//npc为怪物类型
+		if ((*it)->GetRoleType() == 0 && (*it)->IsDead() == false && (*it)->IsVisible() == true)
+		{
+			if (!ContainMonter((*it), tempSet))
+			{
+				tempSet.push_back((*it));
+			}
+		}
+	}
+	for (it = tempSet.begin(); it != tempSet.end(); it++)
+	{
+		T_Graph::PaintRegion((*it)->GetImage()->GetBmpHandle(), hdc, x, y + count*title_wh, 0, 0,
+			(*it)->GetImage()->GetImageWidth() / 4, (*it)->GetImage()->GetImageHeight(), 1);
+
+		wstring Content = L"";
+		Content = L"攻击力：";
+		Content.append(T_Util::int_to_wstring((*it)->GetAggressivity()));
+		Content.append(L"   防御力：");
+		Content.append(T_Util::int_to_wstring((*it)->GetDefense()));
+		Content.append(L"   金钱：");
+		Content.append(T_Util::int_to_wstring((*it)->GetMoney()));
+		Content.append(L"   经验:");
+		Content.append(T_Util::int_to_wstring((*it)->GetScore()));
+		rect.X = (float)x + 2 * title_wh;
+		rect.Y = (float)y + count*title_wh;
+		rect.Width = (float)15 * title_wh;
+		rect.Height = (float)title_wh;
+		FontHeight = 10;
+		T_Graph::PaintText(hdc, rect, Content, (float)FontHeight, L"楷体", Color::White, FontStyleBold, StringAlignmentNear);
+		count++;
+	}
+	rect.X = (float)x;
+	rect.Y = (float)y + title_wh * 10;
+	rect.Width = (float)16 * title_wh;
+	rect.Height = (float)title_wh;
+	T_Graph::PaintText(hdc, rect, L"--按下任意键退出--", (float)FontHeight, L"楷体", Color::White, FontStyleBold, StringAlignmentCenter);
+}
 //玩家是否能与该怪物战斗
 BOOL MoTaGame::IsBattle(T_Sprite * sp)
 {
@@ -762,6 +816,36 @@ BOOL MoTaGame::IsBattle(T_Sprite * sp)
 			return true;
 		}
 	}
+}
+//判断是否为同样的怪兽
+BOOL MoTaGame::IsSameMonster(T_Sprite * sp1, T_Sprite * sp2)
+{
+	if (sp1->GetAggressivity() == sp2->GetAggressivity() && sp1->GetDefense() == sp2->GetDefense()
+		&& sp1->GetScore() == sp2->GetScore() && sp1->GetMoney() == sp2->GetMoney())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+//集合中是否存在该怪兽
+BOOL MoTaGame::ContainMonter(T_Sprite * sp, vSpriteSet monsterSet)
+{
+	vSpriteSet::iterator it;
+	for (it = monsterSet.begin(); it != monsterSet.end(); it++)
+	{
+		if (IsSameMonster((*it), (sp)))
+		{
+			return true;
+		}
+		else
+		{
+			continue;
+		}
+	}
+	return false;
 }
 //设置菜单参数函数
 void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, int posType)
@@ -842,7 +926,25 @@ void MoTaGame::GamePaint(HDC hdc)
 	//非游戏运行状态
 	if (GameState!=GAME_RUN)
 	{
-		if (gameMenu != NULL) gameMenu->DrawMenu(hdc);	
+		if (GameState==GAME_START||GameState==GAME_HELP||GameState==GAME_ABOUT)
+		{
+			if (gameMenu != NULL) gameMenu->DrawMenu(hdc);
+		}
+				
+		if (GameState == GAME_PAUSE)
+		{
+			t_scene->Draw(hdc, 0, 0);
+			switch (pause_State)
+			{
+			case 1:
+			{
+				DisplayHandBook(hdc, npc_set);
+			}
+			break;
+			default:
+				break;
+			}
+		}
 	}
 	//游戏运行状态
 	if (GameState==GAME_RUN)
@@ -1010,10 +1112,23 @@ void MoTaGame::GameKeyAction(int Action)
 				}
 			}
 		}
-
+		if (GameState = GAME_RUN)
+		{
+			if (GetAsyncKeyState(VK_TAB)<0)
+			{
+				if (player->IsDead() == false && player->IsVisible() == true)
+				{
+					if (handbook == true)
+					{
+						GameState = GAME_PAUSE;
+						pause_State = 1;		//查看怪物手册
+					}
+				}
+			}
+		}
 	}
 
-
+	
 }
 void MoTaGame::GameMouseAction(int x, int y, int Action)
 {

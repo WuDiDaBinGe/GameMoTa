@@ -16,6 +16,8 @@ private:
 	int blue_key_num, yellow_key_num, red_key_num;//玩家所拥有的三种三色钥匙的数目
 	int currentLevel;			//当前楼层
 	int arrivedLevel;			//到达过的楼层
+	bool handbook;				//玩家是否拥有怪兽手册
+	int pause_State;			//暂停时的标志
 	static const char * mapfiles[TOTAL_LEVEL];		//地图文件
 	static const char *npcfiles[TOTAL_LEVEL];		//npc文件
 
@@ -60,6 +62,7 @@ public:
 	void UpdatePlayerPos(int dir);	   //更新玩家位置
 	void UpdateFrames();			   //更新动作帧函数
 	void Battling();				   //战斗函数
+	void ClearGameLevel();			   //清除关卡函数
 	//游戏细节处理函数-----------------------------
 	void DisplayInfo(HDC hdc);			//画游戏的各种信息
 	void Collide(T_Sprite *sp);			//碰撞逻辑处理
@@ -76,7 +79,7 @@ public:
 	BOOL ContainMonter(T_Sprite *sp, vSpriteSet monsterSet);	//判断该种怪物是否在集合中
 
 
-	void ClearGameLevel();
+	
 
 
 	// 重载T_Engine类中的虚函数实现游戏功能
