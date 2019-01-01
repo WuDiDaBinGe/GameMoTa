@@ -66,9 +66,9 @@ public:
 	//游戏细节处理函数-----------------------------
 	void DisplayInfo(HDC hdc);			//画游戏的各种信息
 	void Collide(T_Sprite *sp);			//碰撞逻辑处理
-	void DisplayCombat(T_Sprite* sp,HDC hdc);		//打斗画面显示
+	void DisplayCombat(T_Sprite* sp,HDC hdc);//打斗画面显示
 	void DisplayHandBook(HDC hdc, vSpriteSet npcSet);//查看本层的怪物手册
-	
+	void DisplayMoneyBuyMenu(HDC hdc);
 	//其他函数-----------------------------------
 	void setMenuPara(wstring* menuItem,	//菜单项文字数组
 					 int itemSize,		//菜单项个数
@@ -76,7 +76,7 @@ public:
 					 int posType);		//菜单项布局
 	BOOL IsBattle(T_Sprite *sp);		//玩家是否能战斗
 	BOOL IsSameMonster(T_Sprite *sp1, T_Sprite *sp2);//判断是否为相同的怪物
-	BOOL ContainMonter(T_Sprite *sp, vSpriteSet monsterSet);	//判断该种怪物是否在集合中
+	BOOL ContainMonter(T_Sprite *sp, vSpriteSet monsterSet);//判断该种怪物是否在集合中
 
 
 	

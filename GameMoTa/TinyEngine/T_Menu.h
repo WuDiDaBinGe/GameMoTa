@@ -37,7 +37,7 @@ private:
 
 	T_Graph gm_menuBkg;									// 菜单背景
 	T_Graph BtnDIB;										// 菜单图片					
-	vector<MENUITEM> gm_menuItems;						// 菜单项目
+	
 
 	int GetMenuIndex(int x, int y);						// 根据当前鼠标坐标计算菜单项索引号
 	StringAlignment GetAlignment();						
@@ -47,6 +47,7 @@ private:
 	AudioDXBuffer* m_ClickSound;						// 菜单鼠标点击时的声音
 
 public:
+	vector<MENUITEM> gm_menuItems;						// 菜单项目
 	T_Menu();
 	virtual ~T_Menu(void);
 

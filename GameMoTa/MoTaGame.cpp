@@ -6,8 +6,8 @@ int MoTaGame::FRAME_LEFT[20] = { 4,4,5,5,5,6,6,6,7,7,4,4,5,5,5,6,6,6,7,7 };
 int MoTaGame::FRAME_RIGHT[20] = { 8,8,9,9,9,10,10,10,11,11,8,8,9,9,9,10,10,10,11,11 };
 int MoTaGame::FRAME_UP[20] = { 12,12,13,13,13,14,14,14,15,15,12,12,13,13,13,14,14,14,15,15 };
 
-const char *MoTaGame::mapfiles[TOTAL_LEVEL] = {".\\map\\map_level1.txt",".\\map\\map_level2.txt",".\\map\\map_level3.txt" };
-const char* MoTaGame::npcfiles[TOTAL_LEVEL] = { ".\\npcfile\\level1.csv",".\\npcfile\\level2.csv",".\\npcfile\\level3.csv" };
+const char *MoTaGame::mapfiles[TOTAL_LEVEL] = {".\\map\\map_level1.txt",".\\map\\map_level2.txt",".\\map\\map_level3.txt",".\\map\\map_level4.txt",".\\map\\map_level5.txt",".\\map\\map_level6.txt" };
+const char* MoTaGame::npcfiles[TOTAL_LEVEL] = { ".\\npcfile\\level1.csv",".\\npcfile\\level2.csv",".\\npcfile\\level3.csv",".\\npcfile\\level4.csv",".\\npcfile\\level5.csv",".\\npcfile\\level6.csv" };
 Pos MoTaGame::startPos[TOTAL_LEVEL] = { Pos(0,0),Pos(6 * 33,33),Pos(6*33,11*33)};
 Pos MoTaGame::endPos[TOTAL_LEVEL] = { Pos(6*33,33),Pos(6*33,11*33),Pos(16*33,11*33) };
 Pos MoTaGame::startNpcPos[TOTAL_LEVEL] = {Pos(11*33,11*33),Pos(6*33,2*33),Pos(7*33,11*33)};
@@ -57,6 +57,12 @@ void MoTaGame::LoadGameMenu(int type)
 		gameMenu->SetBtnBmp(L".\\res\\Menu\\button.png", 250, 70);
 		setMenuPara(menuItems, 1, 250, 70, 2);
 	}
+	if (type==GAME_PAUSE&&(pause_State==2||pause_State==3))
+	{
+		wstring menuItems1[] = {L"增加5点攻击",L"增加5点防御",L"返回游戏" };
+		gameMenu->SetBtnBmp(L".\\res\\Menu\\button.png", 250, 70);
+		setMenuPara(menuItems1, 3, 250, 70, 0);
+	}
 }
 //加载地图
 void MoTaGame::LoadMap(const char* MapFilepath)
@@ -91,7 +97,7 @@ void MoTaGame::LoadPlayer()
 	spinfo.Level = 0;
 	spinfo.Ratio = 1.0f;
 	spinfo.Rotation = TRANS_NONE;
-	spinfo.Score = 0;
+	spinfo.Score = 100;
 	spinfo.Speed = 33;
 	spinfo.X = (wnd_width - scn_width) / 2 + 33 * 11;
 	spinfo.Y = (wnd_height - scn_height) / 2 + 11 * 33;
@@ -99,7 +105,7 @@ void MoTaGame::LoadPlayer()
 	MOTASPINFO playerInfo;
 	playerInfo.SpBasicInfo = spinfo;
 
-	playerInfo.Aggressivity = 14;
+	playerInfo.Aggressivity = 1400;
 	playerInfo.Defense = 14;
 	playerInfo.LifeValue = 800;
 	playerInfo.Money = 0;
@@ -239,7 +245,6 @@ void MoTaGame::UpdatePlayerPos(int dir)
 		{
 			if (player->CollideWith((*it)))
 			{
-				//K726 K106 K1620 K570
 				//防止两把钥匙打开一个门
 				int type = (*it)->GetRoleType();
 				if (type==1||type==2||type==3)
@@ -594,6 +599,32 @@ void MoTaGame::DisplayInfo(HDC hdc)
 		T_Graph::PaintText(hdc, rect, GameName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
 	}
 	break;
+	case GAME_PAUSE:
+	{
+		//经验商人
+		if (pause_State==2)
+		{
+			Content = L"花费25经验购买如下：";
+			rect.X = (float)(wnd_width - scn_width)/2;
+			rect.Y = (float)(wnd_height - scn_height)/2;
+			rect.Width = 33 * 18.00;
+			rect.Height = 33 * 5.00;
+			FontHeight = 20;
+			T_Graph::PaintText(hdc,rect,Content,(REAL)FontHeight,L"黑体",Color::White,FontStyleBold,StringAlignmentNear);
+		}
+		//金币商人
+		if (pause_State==3)
+		{
+			Content = L"花费25金币购买如下：";
+			rect.X = (float)(wnd_width - scn_width) / 2;
+			rect.Y = (float)(wnd_height - scn_height) / 2;
+			rect.Width = 33 * 18.00;
+			rect.Height = 33 * 5.00;
+			FontHeight = 20;
+			T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+		}
+	}
+	break;
 	default:
 		break;
 	}
@@ -649,6 +680,27 @@ void MoTaGame::Collide(T_Sprite * sp)
 		player->SetAggressivity(player->GetAggressivity() + sp->GetAggressivity()); //攻击力增加
 		player->SetDefense(player->GetDefense() + sp->GetDefense());				//防御力增加
 		player->SetLifeValue(player->GetLifeValue() + sp->GetLifeValue());			//生命值增加
+		sp->SetDead(true);
+		break;
+	case 8:
+		GameState = GAME_PAUSE;
+		pause_State = 3;
+		delete gameMenu;
+		gameMenu = NULL;
+		LoadGameMenu(GAME_PAUSE);
+		break;
+	//碰撞到经验商人
+	case 9:
+		GameState = GAME_PAUSE;
+		pause_State = 2;
+		delete gameMenu;
+		gameMenu = NULL;
+		LoadGameMenu(GAME_PAUSE);
+		break;
+	//碰到怪物手册道具
+	case 10:
+		handbook = true;
+		sp->SetVisible(false);
 		sp->SetDead(true);
 		break;
 
@@ -773,7 +825,12 @@ void MoTaGame::DisplayHandBook(HDC hdc, vSpriteSet npcSet)
 	rect.Y = (float)y + title_wh * 10;
 	rect.Width = (float)16 * title_wh;
 	rect.Height = (float)title_wh;
-	T_Graph::PaintText(hdc, rect, L"--按下任意键退出--", (float)FontHeight, L"楷体", Color::White, FontStyleBold, StringAlignmentCenter);
+	T_Graph::PaintText(hdc, rect, L"--按下Backspace键退出--", (float)FontHeight, L"楷体", Color::White, FontStyleBold, StringAlignmentCenter);
+}
+//显示金钱购买菜单
+void MoTaGame::DisplayMoneyBuyMenu(HDC hdc)
+{
+
 }
 //玩家是否能与该怪物战斗
 BOOL MoTaGame::IsBattle(T_Sprite * sp)
@@ -929,16 +986,30 @@ void MoTaGame::GamePaint(HDC hdc)
 		if (GameState==GAME_START||GameState==GAME_HELP||GameState==GAME_ABOUT)
 		{
 			if (gameMenu != NULL) gameMenu->DrawMenu(hdc);
+			wchar_t buf[256];
+			wsprintf(buf, L"1total=%d\n", gameMenu->gm_menuItems.size());
+			OutputDebugString(buf);
 		}
 				
 		if (GameState == GAME_PAUSE)
 		{
-			t_scene->Draw(hdc, 0, 0);
+			if (t_scene!=NULL)
+			{
+				t_scene->Draw(hdc,0,0);
+			}
 			switch (pause_State)
 			{
 			case 1:
 			{
 				DisplayHandBook(hdc, npc_set);
+			}
+			break;
+			case 2:
+			{
+				if(gameMenu!= NULL) gameMenu->DrawMenu(hdc,255,false);
+				wchar_t buf[256];
+				wsprintf(buf, L"2total=%d\n", gameMenu->gm_menuItems.size());
+				OutputDebugString(buf);
 			}
 			break;
 			default:
@@ -949,18 +1020,18 @@ void MoTaGame::GamePaint(HDC hdc)
 	//游戏运行状态
 	if (GameState==GAME_RUN)
 	{
-		wchar_t buf[256];
+		/*wchar_t buf[256];
 		wsprintf(buf, L"total=%d\n", t_scene->GetTotalLayers());
-		OutputDebugString(buf);
+		OutputDebugString(buf);*/
 
 		t_scene->Draw(hdc,0,0);
 	}
 	if (GameState==GAME_BATTLE)
 	{
 		
-		wchar_t buf[256];
+		/*wchar_t buf[256];
 		wsprintf(buf, L"total=%d\n", t_scene->GetTotalLayers());
-		OutputDebugString(buf);
+		OutputDebugString(buf);*/
 
 		t_scene->Draw(hdc,0,0);
 		DisplayCombat(battleNpc,hdc);
@@ -1010,10 +1081,8 @@ void MoTaGame::GameKeyAction(int Action)
 				{
 					player->SetActive(false);
 				}
-
 			}
 		}
-		
 	}
 
 
@@ -1021,14 +1090,12 @@ void MoTaGame::GameKeyAction(int Action)
 	{
 		if (GameState!=GAME_RUN)
 		{
-			if (GameState ==GAME_START)
+			if (GameState ==GAME_START||(GameState==GAME_PAUSE&&pause_State==2))
 			{
 				if (GetAsyncKeyState(VK_UP) < 0)			gameMenu->MenuKeyDown(VK_UP);
 				if (GetAsyncKeyState(VK_DOWN) < 0)			gameMenu->MenuKeyDown(VK_DOWN);
-				if (GetAsyncKeyState(VK_LEFT) < 0)			gameMenu->MenuKeyDown(VK_LEFT);
-				if (GetAsyncKeyState(VK_RIGHT) < 0)			gameMenu->MenuKeyDown(VK_RIGHT);
 			}
-			if (GameState==GAME_HELP||GameState==GAME_ABOUT)
+			if (GameState==GAME_HELP||GameState==GAME_ABOUT|| GameState == GAME_START)
 			{
 				if (GetAsyncKeyState(VK_LEFT) < 0)			gameMenu->MenuKeyDown(VK_LEFT);
 				if (GetAsyncKeyState(VK_RIGHT) < 0)			gameMenu->MenuKeyDown(VK_RIGHT);
@@ -1109,10 +1176,73 @@ void MoTaGame::GameKeyAction(int Action)
 							break;
 						}
 					}
+
+					if (GameState==GAME_PAUSE&&pause_State==2)
+					{
+						switch (gameMenu->GetMenuIndex())
+						{
+							//购买攻击力
+						case 0:
+							if (player->GetScore()>25)
+							{
+								player->SetAggressivity(player->GetAggressivity()+5);
+								player->SetScore(player->GetScore() - 25);
+							}
+							break;
+							//购买防御力
+						case 1:
+							if (player->GetScore()>25)
+							{
+								player->SetDefense(player->GetDefense()+5);
+								player->SetScore(player->GetScore()-25);
+							}
+							break;
+							//返回游戏
+						case 2:
+							GameState = GAME_RUN;
+							pause_State = 0;
+							break;
+						default:
+							break;
+						}
+					}
+
+					if (GameState == GAME_PAUSE&&pause_State == 2)
+					{
+						switch (gameMenu->GetMenuIndex())
+						{
+							//购买攻击力
+						case 0:
+							if (player->GetMoney()>25)
+							{
+								player->SetAggressivity(player->GetAggressivity() + 5);
+								player->SetMoney(player->GetMoney() - 25);
+							}
+							break;
+							//购买防御力
+						case 1:
+							if (player->GetMoney()>25)
+							{
+								player->SetDefense(player->GetDefense() + 5);
+								player->SetMoney(player->GetMoney() - 25);
+							}
+							break;
+							//返回游戏
+						case 2:
+							GameState = GAME_RUN;
+							pause_State = 0;
+							break;
+						default:
+							break;
+						}
+					}
+
+
 				}
 			}
 		}
-		if (GameState = GAME_RUN)
+		
+		if (GameState == GAME_RUN)
 		{
 			if (GetAsyncKeyState(VK_TAB)<0)
 			{
@@ -1126,8 +1256,20 @@ void MoTaGame::GameKeyAction(int Action)
 				}
 			}
 		}
+		//按下Backspace键 返回游戏
+		if (GameState==GAME_PAUSE&&pause_State==1)
+		{
+			if (GetAsyncKeyState(VK_BACK)<0)
+			{
+				if (handbook == true)
+				{
+					GameState = GAME_RUN;
+					pause_State = 0;		//查看怪物手册
+				}
+			}
+		}
 	}
-
+	
 	
 }
 void MoTaGame::GameMouseAction(int x, int y, int Action)
