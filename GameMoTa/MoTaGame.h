@@ -37,13 +37,21 @@ private:
 	T_Sprite* player;			//游戏玩家
 	T_Sprite * battleNpc;		//正在战斗的npc
 	vSpriteSet  npc_set;		//npc集合
-	vector<vSpriteSet> npc_vec;		//全部楼层的npc集合
+	vector<vSpriteSet> npc_vec;	//全部楼层的npc集合
 
 	//游戏帧动画序列--------------------------------
 	static int FRAME_LEFT[20];		//左方向的帧动画
 	static int FRAME_RIGHT[20];		//右方向的帧动画
-	static int FRAME_UP[20];			//上方向的帧动画
+	static int FRAME_UP[20];		//上方向的帧动画
 	static int FRAME_DOWN[20];		//下方向的帧动画
+	//与声音有关的资源-------------------------------
+	AudioDX dxSnd;					//DrrecctSound对象
+	AudioDXBuffer* mouseOverSound;	//游戏菜单声音
+	AudioDXBuffer* mouseDownSound;	//游戏按钮选下
+	AudioDXBuffer* bkgmusic;		//游戏背景音乐
+	AudioDXBuffer* openDoorSound;	//打开门的音乐
+	AudioDXBuffer* walkSound;		//走路的声音
+	
 
 public:
 	virtual ~MoTaGame(void);
@@ -57,7 +65,8 @@ public:
 	void LoadPlayer();							//加载玩家角色
 	void LoadImageRes();						//加载游戏图片
 	void LoadNpc(const char * filePath);	    //加载npc
-	void LoadGameLevel(int level);
+	void LoadGameLevel(int level);				//切换楼层函数
+	void LoadSound(HWND hwnd);					//加载声音
 	//游戏状态更新类函数---------------------------
 	void UpdatePlayerPos(int dir);	   //更新玩家位置
 	void UpdateFrames();			   //更新动作帧函数

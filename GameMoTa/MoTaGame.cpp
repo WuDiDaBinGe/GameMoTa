@@ -6,13 +6,12 @@ int MoTaGame::FRAME_LEFT[20] = { 4,4,5,5,5,6,6,6,7,7,4,4,5,5,5,6,6,6,7,7 };
 int MoTaGame::FRAME_RIGHT[20] = { 8,8,9,9,9,10,10,10,11,11,8,8,9,9,9,10,10,10,11,11 };
 int MoTaGame::FRAME_UP[20] = { 12,12,13,13,13,14,14,14,15,15,12,12,13,13,13,14,14,14,15,15 };
 
-const char *MoTaGame::mapfiles[TOTAL_LEVEL] = {".\\map\\map_level1.txt",".\\map\\map_level2.txt",".\\map\\map_level3.txt",".\\map\\map_level4.txt",".\\map\\map_level5.txt",".\\map\\map_level6.txt" };
-const char* MoTaGame::npcfiles[TOTAL_LEVEL] = { ".\\npcfile\\level1.csv",".\\npcfile\\level2.csv",".\\npcfile\\level3.csv",".\\npcfile\\level4.csv",".\\npcfile\\level5.csv",".\\npcfile\\level6.csv" };
-Pos MoTaGame::startPos[TOTAL_LEVEL] = { Pos(0,0),Pos(6 * 33,33),Pos(6*33,11*33)};
-Pos MoTaGame::endPos[TOTAL_LEVEL] = { Pos(6*33,33),Pos(6*33,11*33),Pos(16*33,11*33) };
-Pos MoTaGame::startNpcPos[TOTAL_LEVEL] = {Pos(11*33,11*33),Pos(6*33,2*33),Pos(7*33,11*33)};
-Pos MoTaGame::endNpcPos[TOTAL_LEVEL] = {Pos(7*33,33),Pos(6*33,10*33),Pos(15*33,11*33)};
-
+const char *MoTaGame::mapfiles[TOTAL_LEVEL] = {".\\map\\map_level1.txt",".\\map\\map_level2.txt",".\\map\\map_level3.txt",".\\map\\map_level4.txt",".\\map\\map_level5.txt",".\\map\\map_level6.txt" ,".\\map\\map_level7.txt" };
+const char* MoTaGame::npcfiles[TOTAL_LEVEL] = { ".\\npcfile\\level1.csv",".\\npcfile\\level2.csv",".\\npcfile\\level3.csv",".\\npcfile\\level4.csv",".\\npcfile\\level5.csv",".\\npcfile\\level6.csv" ,".\\npcfile\\level7.csv" };
+Pos MoTaGame::startPos[TOTAL_LEVEL] = { Pos(0,0),Pos(6 * 33,33),Pos(6 * 33,11 * 33),Pos(16 * 33,11 * 33),Pos(6 * 33,11 * 33),Pos(15 * 33,11 * 33),Pos(11*33,11*33)};
+Pos MoTaGame::endPos[TOTAL_LEVEL] = { Pos(6 * 33,33),Pos(6 * 33,11 * 33),Pos(16 * 33,11 * 33),Pos(6 * 33,11 * 33),Pos(15 * 33,11 * 33),Pos(10 * 33,11 * 33),Pos(0,0)};
+Pos MoTaGame::startNpcPos[TOTAL_LEVEL] = { Pos(11 * 33,11 * 33),Pos(6 * 33,2 * 33),Pos(7 * 33,11 * 33),Pos(16 * 33,10 * 33),Pos(7 * 33,11 * 33),Pos(14 * 33,11 * 33),Pos(11*33,10*33) };
+Pos MoTaGame::endNpcPos[TOTAL_LEVEL] = { Pos(7 * 33,33),Pos(6 * 33,10 * 33),Pos(16 * 33,10 * 33),Pos(6 * 33,10 * 33),Pos(15 * 33,10 * 33),Pos(11 * 33,11 * 33),Pos(0,0)};
 
 MoTaGame::MoTaGame(HINSTANCE h_instance, LPCTSTR sz_winclass, LPCTSTR sz_title,
 	WORD icon, WORD sm_icon, int winwidth, int winheight)
@@ -39,29 +38,35 @@ void MoTaGame::LoadGameMenu(int type)
 	if (type==GAME_START)
 	{
 		wstring menuItems[] = { L"开始游戏",L"游戏帮助",L"关于游戏",L"退出游戏" };
-		gameMenu->SetMenuBkg(L".\\res\\Menu\\menubkg.jpg",200);
-		gameMenu->SetBtnBmp(L".\\res\\Menu\\button.png",250,70);
-		setMenuPara(menuItems,4,250,70,0);
+		gameMenu->SetMenuBkg(L".\\res\\Menu\\menubkg1.png",255);
+		gameMenu->SetBtnBmp(L".\\res\\Menu\\yellowButton1.png",240,60);
+		setMenuPara(menuItems,4, 240, 60,0);
 	}
 	if (type == GAME_HELP)
 	{
 		wstring menuItems[] = {L"上一页",L"返回",L"下一页"};
 		gameMenu->SetMenuBkg(L".\\res\\Menu\\menubkg.jpg", 200);
-		gameMenu->SetBtnBmp(L".\\res\\Menu\\button.png", 250, 70);
-		setMenuPara(menuItems,3,250,70,2);
+		gameMenu->SetBtnBmp(L".\\res\\Menu\\circleButton.png", 150, 150);
+		setMenuPara(menuItems,3, 150, 150,2);
 	}
 	if (type==GAME_ABOUT)
 	{
 		wstring menuItems[] = {L"返回"};
 		gameMenu->SetMenuBkg(L".\\res\\Menu\\menubkg.jpg", 200);
-		gameMenu->SetBtnBmp(L".\\res\\Menu\\button.png", 250, 70);
-		setMenuPara(menuItems, 1, 250, 70, 2);
+		gameMenu->SetBtnBmp(L".\\res\\Menu\\circleButton.png", 150, 150);
+		setMenuPara(menuItems, 1, 150, 150, 2);
 	}
-	if (type==GAME_PAUSE&&(pause_State==2||pause_State==3))
+	if (type==GAME_PAUSE&&pause_State==2)
 	{
-		wstring menuItems1[] = {L"增加5点攻击",L"增加5点防御",L"返回游戏" };
+		wstring menuItems[] = {L"增加5点攻击",L"增加5点防御",L"返回游戏" };
 		gameMenu->SetBtnBmp(L".\\res\\Menu\\button.png", 250, 70);
-		setMenuPara(menuItems1, 3, 250, 70, 0);
+		setMenuPara(menuItems, 3, 250, 70, 0);
+	}
+	if (type == GAME_PAUSE&&pause_State == 3)
+	{
+		wstring menuItems[] = { L"增加5点攻击",L"增加5点防御",L"返回游戏" };
+		gameMenu->SetBtnBmp(L".\\res\\Menu\\button.png", 250, 70);
+		setMenuPara(menuItems, 3, 250, 70, 0);
 	}
 }
 //加载地图
@@ -79,7 +84,7 @@ void MoTaGame::LoadMap(const char* MapFilepath)
 	SCENE_LAYERS::iterator p;
 	for (p = t_scene->getSceneLayers()->begin(); p != t_scene->getSceneLayers()->end(); p++)
 	{
-		if (p->layer->ClassName() == "T_Map")
+		if (p->layer->ClassName()=="T_Map")
 		{
 			p->layer->SetPosition(scn_x, scn_y);
 		}
@@ -200,6 +205,23 @@ void MoTaGame::LoadGameLevel(int level)
 	player->SetDefense(tempPlayerInfo.Defense);
 	player->SetLifeValue(tempPlayerInfo.LifeValue);
 	player->SetScore(tempPlayerInfo.SpBasicInfo.Score);
+}
+//加载声音
+void MoTaGame::LoadSound(HWND hwnd)
+{
+	mouseOverSound=new AudioDXBuffer();	//游戏菜单声音
+	mouseDownSound=new AudioDXBuffer();	//游戏按钮选下
+	bkgmusic=new AudioDXBuffer();		//游戏背景音乐
+	openDoorSound = new AudioDXBuffer();//打开门的声音
+	walkSound = new AudioDXBuffer();	//走路的声音
+
+	if (!dxSnd.CreateDS(hwnd))	return;
+	
+	mouseOverSound->LoadWave(dxSnd,L".\\sound\\mousemove.wav");
+	mouseDownSound->LoadWave(dxSnd,L".\\sound\\mousechoice.wav");
+	openDoorSound->LoadWave(dxSnd,L".\\sound\\opendoor.wav");
+	walkSound->LoadWave(dxSnd,L".\\sound\\walking.wav");
+	
 }
 //更新玩家位置
 void MoTaGame::UpdatePlayerPos(int dir)
@@ -353,12 +375,12 @@ void MoTaGame::UpdateFrames()
 				delete(*p);
 				p = npc_set.erase(p);
 			}
-			else {
+			else 
+			{
 				p++;
 			}
 		}
 	}
-
 	if (player != NULL)
 	{
 		if (player->IsVisible() == true && player->IsActive() == true)player->LoopFrame();
@@ -367,13 +389,38 @@ void MoTaGame::UpdateFrames()
 //战斗函数
 void MoTaGame::Battling()
 {
-	
+
 	if (battleNpc->GetLifeValue() == 0)
 	{
+		player->SetMoney(battleNpc->GetMoney() + player->GetMoney());
+		player->SetScore(battleNpc->GetScore() + player->GetScore());
 		battleNpc->SetDead(true);
+		vSpriteSet::iterator p;
+		if (npc_set.size() > 0)
+		{
+			for (p = npc_set.begin(); p != npc_set.end(); )
+			{
+				if ((*p)->IsDead() == true)
+				{
+					SCENE_LAYERS::iterator q;
+					for (q = t_scene->getSceneLayers()->begin(); q != t_scene->getSceneLayers()->end(); q++)
+					{
+						if ((*q).layer == (*p))
+						{
+							q = t_scene->getSceneLayers()->erase(q);
+							break;
+						}
+					}
+					delete(*p);
+					p = npc_set.erase(p);
+				}
+				else {
+					p++;
+				}
+			}
+		}
 		GameState = GAME_RUN;
-		player->SetMoney(battleNpc->GetMoney()+player->GetMoney());
-		player->SetScore(battleNpc->GetScore()+player->GetScore());
+
 	}
 	if (battleNpc != NULL)
 	{
@@ -407,10 +454,11 @@ void MoTaGame::Battling()
 				player->SetLifeValue(tempPLV);
 			}
 		}
-		
-		
+
+
 	}
 }
+
 //显示信息函数
 void MoTaGame::DisplayInfo(HDC hdc)
 {
@@ -427,7 +475,7 @@ void MoTaGame::DisplayInfo(HDC hdc)
 		rect.Width = (float)wnd_width;
 		rect.Height = (float)wnd_height / 4;
 		FontHeight = 36;
-		T_Graph::PaintText(hdc, rect, GameName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
+		//T_Graph::PaintText(hdc, rect, GameName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
 
 		wchar_t *Notice = L"本游戏使用TinyEngine引擎开发";
 		rect.X = 0.00;
@@ -435,7 +483,7 @@ void MoTaGame::DisplayInfo(HDC hdc)
 		rect.Width = (float)wnd_width;
 		rect.Height = (float)wnd_height / 5;
 		FontHeight = 10;
-		T_Graph::PaintText(hdc, rect, Notice, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
+		//T_Graph::PaintText(hdc, rect, Notice, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
 		}
 	break;
 	case GAME_HELP:
@@ -579,7 +627,7 @@ void MoTaGame::DisplayInfo(HDC hdc)
 		//画背景框
 		T_Graph::PaintBlank(hdc, x, y + title_wh * 10, title_wh*4, title_wh, Color::Black, 100);
 		Content = L"第 ";
-		Content.append(T_Util::int_to_wstring(currentLevel));
+		Content.append(T_Util::int_to_wstring(currentLevel+1));
 		Content.append(L" 层\n");
 		rect.X = (float)x;
 		rect.Y = (float)y + title_wh * 10;
@@ -623,6 +671,21 @@ void MoTaGame::DisplayInfo(HDC hdc)
 			FontHeight = 20;
 			T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
 		}
+		if (pause_State==4)
+		{
+			Content = L"谢谢你！我去打开第二层的通道！（按Backspace返回游戏）";
+			int title_wh = 33;
+			int x = (wnd_width - scn_width) / 2 + title_wh;
+			int y = (wnd_height - scn_height) / 2 + title_wh;
+			//画图形
+			T_Graph::PaintBlank(hdc, x+5*title_wh, y+8*title_wh, title_wh * 11, title_wh * 3, Color::Black, 190);
+			rect.X = (float)x + 5 * title_wh;
+			rect.Y = (float)y + 8 * title_wh;
+			rect.Width = title_wh * 11;
+			rect.Height = 3 * title_wh;
+			FontHeight = 10;
+			T_Graph::PaintText(hdc,rect,Content,(REAL)FontHeight,L"黑体",Color::White,FontStyleBold,StringAlignmentNear);
+		}
 	}
 	break;
 	default:
@@ -648,6 +711,8 @@ void MoTaGame::Collide(T_Sprite * sp)
 			sp->SetDoorOpen(1);
 			sp->SetActive(false);
 			yellow_key_num--;
+			openDoorSound->Restore();
+			openDoorSound->Play(false);
 		}
 		break;
 	case 2:
@@ -655,6 +720,8 @@ void MoTaGame::Collide(T_Sprite * sp)
 		{
 			sp->SetDoorOpen(1);
 			red_key_num--;
+			openDoorSound->Restore();
+			openDoorSound->Play(false);
 		}
 		break;
 	case 3:
@@ -662,6 +729,8 @@ void MoTaGame::Collide(T_Sprite * sp)
 		{
 			sp->SetDoorOpen(1);
 			blue_key_num--;
+			openDoorSound->Restore();
+			openDoorSound->Play(false);
 		}
 		break;
 	case 4:
@@ -682,6 +751,7 @@ void MoTaGame::Collide(T_Sprite * sp)
 		player->SetLifeValue(player->GetLifeValue() + sp->GetLifeValue());			//生命值增加
 		sp->SetDead(true);
 		break;
+	//碰到金币商人
 	case 8:
 		GameState = GAME_PAUSE;
 		pause_State = 3;
@@ -703,7 +773,37 @@ void MoTaGame::Collide(T_Sprite * sp)
 		sp->SetVisible(false);
 		sp->SetDead(true);
 		break;
-
+	//碰到商店
+	case 12:
+		GameState = GAME_PAUSE;
+		pause_State = 3;
+		delete gameMenu;
+		gameMenu = NULL;
+		LoadGameMenu(GAME_PAUSE);
+		break;
+	case 14:
+	{
+		//小偷说一句话
+		GameState = GAME_PAUSE;
+		pause_State = 4;
+		sp->SetDead(true);
+		sp->SetVisible(false);
+		vSpriteSet temp = npc_vec[1];
+		vSpriteSet::iterator it;
+		for (it = temp.begin(); it != temp.end(); it++)
+		{
+			if ((*it)->GetRoleType() == 13)
+			{
+				delete (*it);
+				it = temp.erase(it);
+				break;
+			}
+		}
+	}
+	break;
+	case 15:
+		GameState = GAME_WIN;
+	break;
 	default:
 		break;
 	}
@@ -935,12 +1035,8 @@ void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, 
 		mItem.ItemName = menuItems[i];
 		gameMenu->AddMenuItem(mItem);
 	}
-	/*
-
-		在这里添加菜单声音代码
-
-
-	*/
+	gameMenu->SetMoveSound(mouseOverSound);
+	gameMenu->SetClickSound(mouseDownSound);
 	MENU_INFO menuinfo;
 	menuinfo.align = 1;							//对齐方式
 	menuinfo.space = MENU_SPACE;				//菜单项之间的间隔距离
@@ -948,8 +1044,16 @@ void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, 
 	menuinfo.height = m_h;						//菜单项高
 	menuinfo.fontName = L"宋体";				    //菜单项字体
 	menuinfo.isBold = true;					    //是否粗体
-	menuinfo.normalTextColor = Color::White;	//正常状态文字颜色
-	menuinfo.focusTextColor = Color::Red;	    //选中状态文字颜色
+	if(GameState==GAME_HELP||GAME_ABOUT)
+	{
+		menuinfo.normalTextColor = Color::Black;	//正常状态文字颜色
+		menuinfo.focusTextColor = Color::Red;	    //选中状态文字颜色
+	}
+	else
+	{
+		menuinfo.normalTextColor = Color::White;	//正常状态文字颜色
+		menuinfo.focusTextColor = Color::Red;	    //选中状态文字颜色
+	}
 	gameMenu->SetMenuInfo(menuinfo);
 }
 void MoTaGame::GameInit()
@@ -960,6 +1064,7 @@ void MoTaGame::GameInit()
 	LoadImageRes();
 	LoadPlayer();
 	LoadNpc(".\\npcfile\\level1.csv");
+	LoadSound(m_hWnd);
 }
 void MoTaGame::GameLogic()
 {
@@ -986,9 +1091,6 @@ void MoTaGame::GamePaint(HDC hdc)
 		if (GameState==GAME_START||GameState==GAME_HELP||GameState==GAME_ABOUT)
 		{
 			if (gameMenu != NULL) gameMenu->DrawMenu(hdc);
-			wchar_t buf[256];
-			wsprintf(buf, L"1total=%d\n", gameMenu->gm_menuItems.size());
-			OutputDebugString(buf);
 		}
 				
 		if (GameState == GAME_PAUSE)
@@ -1010,6 +1112,11 @@ void MoTaGame::GamePaint(HDC hdc)
 				wchar_t buf[256];
 				wsprintf(buf, L"2total=%d\n", gameMenu->gm_menuItems.size());
 				OutputDebugString(buf);
+			}
+			break;
+			case 3:
+			{
+				if (gameMenu != NULL) gameMenu->DrawMenu(hdc, 255, false);
 			}
 			break;
 			default:
@@ -1037,6 +1144,9 @@ void MoTaGame::GamePaint(HDC hdc)
 		DisplayCombat(battleNpc,hdc);
 	}
 	DisplayInfo(hdc);
+	wchar_t buf[256];
+	wsprintf(buf, L"3total=%d gameState=%d \n", gameMenu->gm_menuItems.size(),GameState);
+	OutputDebugString(buf);
 }
 void MoTaGame::GameKeyAction(int Action)
 {
@@ -1054,6 +1164,8 @@ void MoTaGame::GameKeyAction(int Action)
 					player->SetActive(true);
 					player->SetSequence(FRAME_LEFT, 20);
 					player->SetDir(DIR_LEFT);
+					walkSound->Restore();
+					walkSound->Play(false);
 				}
 
 				if (CheckKey(VK_RIGHT) && !CheckKey(VK_DOWN) && !CheckKey(VK_UP))
@@ -1061,6 +1173,8 @@ void MoTaGame::GameKeyAction(int Action)
 					player->SetActive(true);
 					player->SetSequence(FRAME_RIGHT, 20);
 					player->SetDir(DIR_RIGHT);
+					walkSound->Restore();
+					walkSound->Play(false);
 				}
 
 				if (CheckKey(VK_UP) && !CheckKey(VK_LEFT) && !CheckKey(VK_RIGHT))
@@ -1068,6 +1182,8 @@ void MoTaGame::GameKeyAction(int Action)
 					player->SetActive(true);
 					player->SetSequence(FRAME_UP, 20);
 					player->SetDir(DIR_UP);
+					walkSound->Restore();
+					walkSound->Play(false);
 				}
 
 				if (CheckKey(VK_DOWN) && !CheckKey(VK_LEFT) && !CheckKey(VK_RIGHT))
@@ -1075,6 +1191,8 @@ void MoTaGame::GameKeyAction(int Action)
 					player->SetActive(true);
 					player->SetSequence(FRAME_DOWN, 20);
 					player->SetDir(DIR_DOWN);
+					walkSound->Restore();
+					walkSound->Play(false);
 				}
 				if (CheckKey(VK_LEFT) == false && CheckKey(VK_RIGHT) == false &&
 					CheckKey(VK_UP) == false && CheckKey(VK_DOWN) == false)
@@ -1090,7 +1208,7 @@ void MoTaGame::GameKeyAction(int Action)
 	{
 		if (GameState!=GAME_RUN)
 		{
-			if (GameState ==GAME_START||(GameState==GAME_PAUSE&&pause_State==2))
+			if (GameState ==GAME_START||(GameState==GAME_PAUSE))
 			{
 				if (GetAsyncKeyState(VK_UP) < 0)			gameMenu->MenuKeyDown(VK_UP);
 				if (GetAsyncKeyState(VK_DOWN) < 0)			gameMenu->MenuKeyDown(VK_DOWN);
@@ -1207,7 +1325,7 @@ void MoTaGame::GameKeyAction(int Action)
 						}
 					}
 
-					if (GameState == GAME_PAUSE&&pause_State == 2)
+					if (GameState == GAME_PAUSE&&pause_State == 3)
 					{
 						switch (gameMenu->GetMenuIndex())
 						{
@@ -1256,7 +1374,7 @@ void MoTaGame::GameKeyAction(int Action)
 				}
 			}
 		}
-		//按下Backspace键 返回游戏
+		//按下Backspace键 从怪物手册返回游戏
 		if (GameState==GAME_PAUSE&&pause_State==1)
 		{
 			if (GetAsyncKeyState(VK_BACK)<0)
@@ -1266,6 +1384,15 @@ void MoTaGame::GameKeyAction(int Action)
 					GameState = GAME_RUN;
 					pause_State = 0;		//查看怪物手册
 				}
+			}
+		}
+		//按下Backspace键 从对话返回游戏
+		if (GameState==GAME_PAUSE&&pause_State==4)
+		{
+			if (GetAsyncKeyState(VK_BACK)<0)
+			{
+				GameState = GAME_RUN;
+				pause_State = 0;
 			}
 		}
 	}

@@ -16,14 +16,14 @@
 .\\res\\npc\\ske.png,25,5,110,5,4,7,3,0
 .\\res\\npc\\ske.png,25,5,110,5,4,11,4,0
 .\\res\\npc\\shop1.png,0,0,0,0,0,10,1,12
-.\\res\\npc\\shop2.png,0,0,0,0,0,11,1,15
-.\\res\\npc\\shop3.png,0,0,0,0,0,12,1,16
+.\\res\\npc\\shop2.png,0,0,0,0,0,11,1,12
+.\\res\\npc\\shop3.png,0,0,0,0,0,12,1,12
 .\\res\\npc\\yellowDoor.png,0,0,0,0,0,7,4,1
 .\\res\\npc\\yellowDoor.png,0,0,0,0,0,11,3,1
 .\\res\\npc\\yellowDoor.png,0,0,0,0,0,13,8,1
 .\\res\\npc\\yellowKey.png,0,0,0,0,0,6,3,4
 .\\res\\npc\\yellowKey.png,0,0,0,0,0,7,2,4
-.\\res\\npc\\yellowKey.png,0,0,0,0,0,8,7,4
+.\\res\\npc\\yellowKey.png,0,0,0,0,0,8,1,4
 .\\res\\npc\\yellowKey.png,0,0,0,0,0,14,4,4
 .\\res\\npc\\yellowKey.png,0,0,0,0,0,14,5,4
 .\\res\\npc\\yellowKey.png,0,0,0,0,0,14,6,4
