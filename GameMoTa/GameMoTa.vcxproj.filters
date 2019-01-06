@@ -21,9 +21,6 @@
     <ClCompile Include="GameMain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="haha.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="MoTaGame.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -56,9 +53,6 @@
     </ClCompile>
     <ClCompile Include="TinyEngine\T_Util.cpp">
       <Filter>源文件\TinyEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="test1.cpp">
-      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

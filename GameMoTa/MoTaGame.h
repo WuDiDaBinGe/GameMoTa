@@ -88,11 +88,7 @@ public:
 	BOOL IsBattle(T_Sprite *sp);		//玩家是否能战斗
 	BOOL IsSameMonster(T_Sprite *sp1, T_Sprite *sp2);//判断是否为相同的怪物
 	BOOL ContainMonter(T_Sprite *sp, vSpriteSet monsterSet);//判断该种怪物是否在集合中
-
-
-	
-
-
+	void Restart();	//重新开始游戏
 	// 重载T_Engine类中的虚函数实现游戏功能
 	void GameInit();								// 游戏初始化	
 	void GameLogic();								// 游戏逻辑处理

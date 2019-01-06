@@ -1,8 +1,8 @@
 .\\res\\npc\\redSwordMan.png,750,650,900,77,70,9,1,0
 .\\res\\npc\\swordMan.png,350,200,850,45,40,15,3,0
 .\\res\\npc\\swordMan.png,350,200,850,45,40,14,7,0
-.\\res\\npc\\oldMan1.png,0,0,0,0,0,13,11,9
-.\\res\\npc\\oldMan2.png,0,0,0,0,0,15,11,8
+.\\res\\npc\\oldMan1.png,0,0,0,0,0,13,11,16
+.\\res\\npc\\oldMan2.png,0,0,0,0,0,15,11,17
 .\\res\\npc\\yellowDoor.png,0,0,0,0,0,8,6,1
 .\\res\\npc\\yellowDoor.png,0,0,0,0,0,11,6,1
 .\\res\\npc\\yellowDoor.png,0,0,0,0,0,14,6,1

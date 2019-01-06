@@ -22,7 +22,7 @@ MoTaGame::MoTaGame(HINSTANCE h_instance, LPCTSTR sz_winclass, LPCTSTR sz_title,
 	wnd_width = winwidth;
 	wnd_height = winheight;
 	t_scene = new T_Scene();
-	yellow_key_num = 100;
+	yellow_key_num = 1;
 	red_key_num = 1;
 	blue_key_num = 1;
 	currentLevel = 0;
@@ -110,8 +110,8 @@ void MoTaGame::LoadPlayer()
 	MOTASPINFO playerInfo;
 	playerInfo.SpBasicInfo = spinfo;
 
-	playerInfo.Aggressivity = 15;
-	playerInfo.Defense = 14;
+	playerInfo.Aggressivity = 1500;
+	playerInfo.Defense = 1400;
 	playerInfo.LifeValue = 800;
 	playerInfo.Money = 0;
 
@@ -158,6 +158,7 @@ void MoTaGame::LoadNpc(const char * filePath)
 	}
 }
 
+//清除关卡
 void MoTaGame::ClearGameLevel()
 {
 	delete t_scene;
@@ -675,23 +676,68 @@ void MoTaGame::DisplayInfo(HDC hdc)
 			FontHeight = 20;
 			T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
 		}
+		int title_wh = 33;
+		int x = (wnd_width - scn_width) / 2 + title_wh;
+		int y = (wnd_height - scn_height) / 2 + title_wh;
+		//碰到小偷显示
 		if (pause_State==4)
 		{
 			Content = L"谢谢你！我去打开第二层的通道！（按Backspace返回游戏）";
-			int title_wh = 33;
-			int x = (wnd_width - scn_width) / 2 + title_wh;
-			int y = (wnd_height - scn_height) / 2 + title_wh;
 			//画图形
 			T_Graph::PaintBlank(hdc, x+5*title_wh, y+8*title_wh, title_wh * 11, title_wh * 3, Color::Black, 190);
 			rect.X = (float)x + 5 * title_wh;
 			rect.Y = (float)y + 8 * title_wh;
-			rect.Width = title_wh * 11;
-			rect.Height = 3 * title_wh;
+			rect.Width = (float)title_wh * 11;
+			rect.Height = (float)3 * title_wh;
 			FontHeight = 10;
 			T_Graph::PaintText(hdc,rect,Content,(REAL)FontHeight,L"黑体",Color::White,FontStyleBold,StringAlignmentNear);
 		}
+		//碰到二层第一个老头+300攻击
+		if (pause_State==5)
+		{
+			Content = L"我将给你一把宝剑，可以给你加300攻击力！（按Backspace返回游戏）";
+			//画图形
+			T_Graph::PaintBlank(hdc, x + 5 * title_wh, y + 8 * title_wh, title_wh * 11, title_wh * 3, Color::Black, 190);
+			rect.X = (float)x + 5 * title_wh;
+			rect.Y = (float)y + 8 * title_wh;
+			rect.Width = (float)title_wh * 11;
+			rect.Height = (float)3 * title_wh;
+			FontHeight = 10;
+			T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+		}
+		//碰到二层第二个老头+300防御
+		if (pause_State==6)
+		{
+			Content = L"我将给你一个盾牌，可以增加300防御力！（按Backspace返回游戏）";
+			//画图形
+			T_Graph::PaintBlank(hdc, x + 5 * title_wh, y + 8 * title_wh, title_wh * 11, title_wh * 3, Color::Black, 190);
+			rect.X = (float)x + 5 * title_wh;
+			rect.Y = (float)y + 8 * title_wh;
+			rect.Width = (float)title_wh * 11;
+			rect.Height = (float)3 * title_wh;
+			FontHeight = 10;
+			T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+		}
 	}
 	break;
+	case GAME_WIN:
+	{
+		int title_wh = 33;
+		int x = (wnd_width - scn_width) / 2 + title_wh;
+		int y = (wnd_height - scn_height) / 2 + title_wh;
+		Content = L"恭喜通关！";
+		//画图形
+		T_Graph::PaintBlank(hdc, x + 5 * title_wh, y + 8 * title_wh, title_wh * 11, title_wh * 3, Color::Black, 190);
+		rect.X = (float)x + 5 * title_wh;
+		rect.Y = (float)y + 8 * title_wh;
+		rect.Width = (float)title_wh * 11;
+		rect.Height = (float)3 * title_wh;
+		FontHeight = 10;
+		T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+		
+	}
+	break;
+
 	default:
 		break;
 	}
@@ -787,6 +833,13 @@ void MoTaGame::Collide(T_Sprite * sp)
 		getBounsSound->Restore();
 		getBounsSound->Play(false);
 		break;
+	//碰到栅栏
+	case 11:
+		sp->SetVisible(false);
+		sp->SetDead(true);
+		getBounsSound->Restore();
+		getBounsSound->Play(false);
+		break;
 	//碰到商店
 	case 12:
 		GameState = GAME_PAUSE;
@@ -795,9 +848,9 @@ void MoTaGame::Collide(T_Sprite * sp)
 		gameMenu = NULL;
 		LoadGameMenu(GAME_PAUSE);
 		break;
+	//小偷
 	case 14:
 	{
-		//小偷说一句话
 		GameState = GAME_PAUSE;
 		pause_State = 4;
 		sp->SetDead(true);
@@ -815,9 +868,29 @@ void MoTaGame::Collide(T_Sprite * sp)
 		}
 	}
 	break;
+	//碰到公主
 	case 15:
 		GameState = GAME_WIN;
-	break;
+		break;
+	//碰到第二关的老头1
+	case 16:
+		//显示交谈
+		GameState = GAME_PAUSE;
+		pause_State = 5;
+		sp->SetVisible(false);
+		sp->SetDead(true);
+		player->SetAggressivity(player->GetAggressivity() + 300);
+		break;
+	//碰撞第二关的老头2
+	case 17:
+		//显示交谈
+		GameState = GAME_PAUSE;
+		pause_State = 6;
+		sp->SetVisible(false);
+		sp->SetDead(true);
+		player->SetDefense(player->GetDefense() + 300);
+		break;
+	
 	default:
 		break;
 	}
@@ -1018,6 +1091,22 @@ BOOL MoTaGame::ContainMonter(T_Sprite * sp, vSpriteSet monsterSet)
 	}
 	return false;
 }
+void MoTaGame::Restart()
+{
+	currentLevel = 0;
+	arrivedLevel = 0;
+	ClearGameLevel();
+	vector<vSpriteSet>temp = vector<vSpriteSet>();
+	npc_vec.clear();
+	npc_vec.swap(temp);
+	delete player;
+	player = NULL;
+	t_scene = new T_Scene();
+	yellow_key_num = 1;
+	red_key_num = 1;
+	blue_key_num = 1;
+	GameInit();
+}
 //设置菜单参数函数
 void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, int posType)
 {
@@ -1174,6 +1263,11 @@ void MoTaGame::GameKeyAction(int Action)
 			player->SetStartTime(player->GetEndTime());
 			if (GameState == GAME_RUN)
 			{
+				if (CheckKey(82))
+				{
+					Restart();
+					GameState = GAME_RUN;
+				}
 				if (CheckKey(VK_LEFT) && !CheckKey(VK_DOWN) && !CheckKey(VK_UP))
 				{
 					player->SetActive(true);
@@ -1402,12 +1496,21 @@ void MoTaGame::GameKeyAction(int Action)
 			}
 		}
 		//按下Backspace键 从对话返回游戏
-		if (GameState==GAME_PAUSE&&pause_State==4)
+		bool ab = pause_State == 4 || pause_State == 5 || pause_State == 6;
+		if (GameState==GAME_PAUSE&&ab)
 		{
 			if (GetAsyncKeyState(VK_BACK)<0)
 			{
 				GameState = GAME_RUN;
 				pause_State = 0;
+			}
+		}
+
+		if (GameState==GAME_WIN)
+		{
+			if (GetAsyncKeyState(VK_BACK)<0)
+			{
+				Restart();
 			}
 		}
 	}
