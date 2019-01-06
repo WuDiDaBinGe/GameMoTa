@@ -51,6 +51,8 @@ private:
 	AudioDXBuffer* bkgmusic;		//游戏背景音乐
 	AudioDXBuffer* openDoorSound;	//打开门的音乐
 	AudioDXBuffer* walkSound;		//走路的声音
+	AudioDXBuffer* battingSound;	//战斗声音
+	AudioDXBuffer* getBounsSound;	//获取奖励声音
 	
 
 public:

@@ -110,7 +110,7 @@ void MoTaGame::LoadPlayer()
 	MOTASPINFO playerInfo;
 	playerInfo.SpBasicInfo = spinfo;
 
-	playerInfo.Aggressivity = 1400;
+	playerInfo.Aggressivity = 15;
 	playerInfo.Defense = 14;
 	playerInfo.LifeValue = 800;
 	playerInfo.Money = 0;
@@ -214,13 +214,17 @@ void MoTaGame::LoadSound(HWND hwnd)
 	bkgmusic=new AudioDXBuffer();		//游戏背景音乐
 	openDoorSound = new AudioDXBuffer();//打开门的声音
 	walkSound = new AudioDXBuffer();	//走路的声音
-
+	battingSound = new AudioDXBuffer(); //战斗声音
+	getBounsSound = new AudioDXBuffer();//获取奖励声音
 	if (!dxSnd.CreateDS(hwnd))	return;
 	
 	mouseOverSound->LoadWave(dxSnd,L".\\sound\\mousemove.wav");
 	mouseDownSound->LoadWave(dxSnd,L".\\sound\\mousechoice.wav");
 	openDoorSound->LoadWave(dxSnd,L".\\sound\\opendoor.wav");
 	walkSound->LoadWave(dxSnd,L".\\sound\\walking.wav");
+	bkgmusic->LoadWave(dxSnd,L".\\sound\\back.wav");
+	battingSound->LoadWave(dxSnd,L".\\sound\\batting.wav");
+	getBounsSound->LoadWave(dxSnd,L".\\sound\\getting.wav");
 	
 }
 //更新玩家位置
@@ -389,7 +393,7 @@ void MoTaGame::UpdateFrames()
 //战斗函数
 void MoTaGame::Battling()
 {
-
+	battingSound->Play(true);
 	if (battleNpc->GetLifeValue() == 0)
 	{
 		player->SetMoney(battleNpc->GetMoney() + player->GetMoney());
@@ -420,7 +424,7 @@ void MoTaGame::Battling()
 			}
 		}
 		GameState = GAME_RUN;
-
+		battingSound->Stop();
 	}
 	if (battleNpc != NULL)
 	{
@@ -736,20 +740,28 @@ void MoTaGame::Collide(T_Sprite * sp)
 	case 4:
 		yellow_key_num++;
 		sp->SetDead(true);
+		getBounsSound->Restore();
+		getBounsSound->Play(false);
 		break;
 	case 5:
 		red_key_num++;
 		sp->SetDead(true);
+		getBounsSound->Restore();
+		getBounsSound->Play(false);
 		break;
 	case 6:
 		blue_key_num++;
 		sp->SetDead(true);
+		getBounsSound->Restore();
+		getBounsSound->Play(false);
 		break;
 	case 7:
 		player->SetAggressivity(player->GetAggressivity() + sp->GetAggressivity()); //攻击力增加
 		player->SetDefense(player->GetDefense() + sp->GetDefense());				//防御力增加
 		player->SetLifeValue(player->GetLifeValue() + sp->GetLifeValue());			//生命值增加
 		sp->SetDead(true);
+		getBounsSound->Restore();
+		getBounsSound->Play(false);
 		break;
 	//碰到金币商人
 	case 8:
@@ -772,6 +784,8 @@ void MoTaGame::Collide(T_Sprite * sp)
 		handbook = true;
 		sp->SetVisible(false);
 		sp->SetDead(true);
+		getBounsSound->Restore();
+		getBounsSound->Play(false);
 		break;
 	//碰到商店
 	case 12:
@@ -1065,6 +1079,7 @@ void MoTaGame::GameInit()
 	LoadPlayer();
 	LoadNpc(".\\npcfile\\level1.csv");
 	LoadSound(m_hWnd);
+	//bkgmusic->Play(true);
 }
 void MoTaGame::GameLogic()
 {
