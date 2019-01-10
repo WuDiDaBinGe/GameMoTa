@@ -47,7 +47,7 @@ void MoTaGame::LoadGameMenu(int type)
 	if (type == GAME_HELP)
 	{
 		wstring menuItems[] = {L"上一页",L"返回",L"下一页"};
-		gameMenu->SetMenuBkg(L".\\res\\Menu\\menubkg.jpg", 200);
+		gameMenu->SetMenuBkg(L".\\res\\Menu\\help_back.jpg", 200);
 		gameMenu->SetBtnBmp(L".\\res\\Menu\\circleButton.png", 150, 150);
 		setMenuPara(menuItems,3, 150, 150,2);
 		gameMenu->SetMoveSound(mouseOverSound);
@@ -56,7 +56,7 @@ void MoTaGame::LoadGameMenu(int type)
 	if (type==GAME_ABOUT)
 	{
 		wstring menuItems[] = {L"上一页",L"返回",L"下一页"};
-		gameMenu->SetMenuBkg(L".\\res\\Menu\\menubkg.jpg", 200);
+		gameMenu->SetMenuBkg(L".\\res\\Menu\\about_back.png", 200);
 		gameMenu->SetBtnBmp(L".\\res\\Menu\\circleButton.png", 150, 150);
 		setMenuPara(menuItems, 3, 150, 150, 2);
 		gameMenu->SetMoveSound(mouseOverSound);
