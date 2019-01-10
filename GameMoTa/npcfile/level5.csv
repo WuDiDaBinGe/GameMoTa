@@ -15,7 +15,7 @@
 .\\res\\npc\\bat.png,20,5,100,3,3,11,10,0
 .\\res\\npc\\monkey.png,75,45,300,13,10,14,4,0
 .\\res\\npc\\monkey.png,75,45,300,13,10,14,8,0
-.\\res\\npc\\oldMan2.png,0,0,0,0,0,16,4,8
+.\\res\\npc\\oldMan2.png,0,0,0,0,0,16,4,18
 .\\res\\npc\\oldMan1.png,0,0,0,0,0,7,8,9
 .\\res\\npc\\ske.png,25,2,110,5,4,12,6,0
 .\\res\\npc\\priGuard.png,150,90,450,22,19,15,8,0

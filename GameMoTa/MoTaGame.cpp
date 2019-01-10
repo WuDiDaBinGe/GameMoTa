@@ -41,6 +41,8 @@ void MoTaGame::LoadGameMenu(int type)
 		gameMenu->SetMenuBkg(L".\\res\\Menu\\menubkg1.png",255);
 		gameMenu->SetBtnBmp(L".\\res\\Menu\\yellowButton1.png",240,60);
 		setMenuPara(menuItems,4, 240, 60,0);
+		gameMenu->SetMoveSound(mouseOverSound);
+		gameMenu->SetClickSound(mouseDownSound);
 	}
 	if (type == GAME_HELP)
 	{
@@ -48,25 +50,35 @@ void MoTaGame::LoadGameMenu(int type)
 		gameMenu->SetMenuBkg(L".\\res\\Menu\\menubkg.jpg", 200);
 		gameMenu->SetBtnBmp(L".\\res\\Menu\\circleButton.png", 150, 150);
 		setMenuPara(menuItems,3, 150, 150,2);
+		gameMenu->SetMoveSound(mouseOverSound);
+		gameMenu->SetClickSound(mouseDownSound);
 	}
 	if (type==GAME_ABOUT)
 	{
-		wstring menuItems[] = {L"返回"};
+		wstring menuItems[] = {L"上一页",L"返回",L"下一页"};
 		gameMenu->SetMenuBkg(L".\\res\\Menu\\menubkg.jpg", 200);
 		gameMenu->SetBtnBmp(L".\\res\\Menu\\circleButton.png", 150, 150);
-		setMenuPara(menuItems, 1, 150, 150, 2);
+		setMenuPara(menuItems, 3, 150, 150, 2);
+		gameMenu->SetMoveSound(mouseOverSound);
+		gameMenu->SetClickSound(mouseDownSound);
 	}
 	if (type==GAME_PAUSE&&pause_State==2)
 	{
-		wstring menuItems[] = {L"增加5点攻击",L"增加5点防御",L"返回游戏" };
+		wstring menuItems[] = {L"增加25点攻击",L"增加25点防御",L"返回游戏" };
 		gameMenu->SetBtnBmp(L".\\res\\Menu\\button.png", 250, 70);
 		setMenuPara(menuItems, 3, 250, 70, 0);
 	}
 	if (type == GAME_PAUSE&&pause_State == 3)
 	{
-		wstring menuItems[] = { L"增加5点攻击",L"增加5点防御",L"返回游戏" };
+		wstring menuItems[] = { L"增加25点攻击",L"增加25点防御",L"返回游戏" };
 		gameMenu->SetBtnBmp(L".\\res\\Menu\\button.png", 250, 70);
 		setMenuPara(menuItems, 3, 250, 70, 0);
+	}
+	if (type==GAME_PAUSE&&pause_State==7)
+	{
+		wstring menuItems[] = {L"黄钥匙+1",L"蓝钥匙+1", L"红钥匙+1",L"返回游戏"};
+		gameMenu->SetBtnBmp(L".\\res\\Menu\\button.png", 250, 70);
+		setMenuPara(menuItems, 4, 250, 70, 0);
 	}
 }
 //加载地图
@@ -110,7 +122,7 @@ void MoTaGame::LoadPlayer()
 	MOTASPINFO playerInfo;
 	playerInfo.SpBasicInfo = spinfo;
 
-	playerInfo.Aggressivity = 1500;
+	playerInfo.Aggressivity = 200;
 	playerInfo.Defense = 1400;
 	playerInfo.LifeValue = 800;
 	playerInfo.Money = 0;
@@ -133,6 +145,11 @@ void MoTaGame::LoadImageRes()
 	if (redKey == NULL) redKey = new T_Graph(L".\\res\\Npc\\redKey.png");
 	if (blueKey == NULL) blueKey = new T_Graph(L".\\res\\Npc\\blueKey.png");
 	if (player_img == NULL) player_img = new T_Graph(L".\\res\\Player\\Player.png");
+	//加载成员图片
+	if (yan == NULL) yan = new T_Graph(L".\\res\\Group\\yan.png");
+	if (yu == NULL) yu = new T_Graph(L".\\res\\Group\\yu.jpg");
+	if (yang == NULL) yang = new T_Graph(L".\\res\\Group\\yang.png");
+	if (ma == NULL) ma = new T_Graph(L".\\res\\Group\\ma.png");
 }
 //从文件中加载NPC信息
 void MoTaGame::LoadNpc(const char * filePath)
@@ -217,6 +234,7 @@ void MoTaGame::LoadSound(HWND hwnd)
 	walkSound = new AudioDXBuffer();	//走路的声音
 	battingSound = new AudioDXBuffer(); //战斗声音
 	getBounsSound = new AudioDXBuffer();//获取奖励声音
+	buyThingSound = new AudioDXBuffer();//购买成功声音
 	if (!dxSnd.CreateDS(hwnd))	return;
 	
 	mouseOverSound->LoadWave(dxSnd,L".\\sound\\mousemove.wav");
@@ -224,9 +242,9 @@ void MoTaGame::LoadSound(HWND hwnd)
 	openDoorSound->LoadWave(dxSnd,L".\\sound\\opendoor.wav");
 	walkSound->LoadWave(dxSnd,L".\\sound\\walking.wav");
 	bkgmusic->LoadWave(dxSnd,L".\\sound\\back.wav");
-	battingSound->LoadWave(dxSnd,L".\\sound\\batting.wav");
+	battingSound->LoadWave(dxSnd,L".\\sound\\battle.wav");
 	getBounsSound->LoadWave(dxSnd,L".\\sound\\getting.wav");
-	
+	buyThingSound->LoadWave(dxSnd,L".\\sound\\buy.wav");
 }
 //更新玩家位置
 void MoTaGame::UpdatePlayerPos(int dir)
@@ -550,19 +568,73 @@ void MoTaGame::DisplayInfo(HDC hdc)
 			rect.Height = 80;
 			FontHeight = 38;
 			T_Graph::PaintText(hdc, rect, L"关  于", (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
-
-			Content = L"魔塔V1.0 \n";
-			Content.append(L"版本：1.0.0 \n");
-			Content.append(L"作者：6栋222宿舍\n");
-			Content.append(L"Copyright 2018  \n");
-			Content.append(L"All Rights Reserved\n");
-			Content.append(L"保留所有权利\n");
-			rect.X = 60.00;
-			rect.Y = 100.00;
-			rect.Width = float(wnd_width - 120);
-			rect.Height = WIN_HEIGHT - 450;
-			FontHeight = 20;
-			T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
+			switch (aboutPageIndex)
+			{
+			case 0:
+			{
+				//成员图片
+				T_Graph::PaintRegion(yan->GetBmpHandle(),hdc,150,200,0,0,yan->GetImageWidth(),yan->GetImageHeight(),(float)0.1);
+				Content = L"鄢云路--系统测试，大作业文档编写,玩家和npc模块(加载、移动、碰撞逻辑，战斗)，\n关卡切换，重新开始功能，引擎修改，规则定义等";
+				rect.X = 170 + (REAL)yan->GetImageWidth()/10;
+				rect.Y =200.00;
+				rect.Width = wnd_width - 170 - (REAL)yan->GetImageWidth()/10;
+				rect.Height = (REAL)yan->GetImageHeight()/10;
+				FontHeight = 10;
+				T_Graph::PaintText(hdc,rect,Content,(REAL)FontHeight,L"楷体",Color::White,FontStyleBold,StringAlignmentNear);
+				//成员图片
+				T_Graph::PaintRegion(yu->GetBmpHandle(), hdc, 150, 240+yan->GetImageHeight()/10,0,0,yu->GetImageWidth(), yu->GetImageHeight(), (float) 0.1);
+				Content = L"于修彬--大作业文档编写、游戏菜单模块（关于、帮助分页实现）、游戏状态栏显示、\n战斗画面显示";
+				Content.append(L"怪物手册、购买功能的实现、声音模块");
+				rect.X = 170 + (REAL)yan->GetImageWidth() / 10;
+				rect.Y = 240 + (REAL)yan->GetImageHeight() / 10;
+				rect.Width = wnd_width - 170 - (REAL)yan->GetImageWidth() / 10;
+				rect.Height = (REAL)yan->GetImageHeight() / 10;
+				FontHeight = 10;
+				T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"楷体", Color::White, FontStyleBold, StringAlignmentNear);
+			}
+			break;
+			case 1:
+			{
+				//成员图片
+				T_Graph::PaintRegion(yang->GetBmpHandle(), hdc, 150, 200, 0, 0, yang->GetImageWidth(), yang->GetImageHeight(), (float)0.1);
+				Content = L"杨钊--游戏策划文档编写，大作业文档编写，素材改造，部分图片素材设计";
+				rect.X = 170 + (REAL)yang->GetImageWidth() / 10;
+				rect.Y = 200.00;
+				rect.Width = wnd_width - 170 - (REAL)yang->GetImageWidth() / 10;
+				rect.Height = (REAL)yang->GetImageHeight() / 10;
+				FontHeight = 10;
+				T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"楷体", Color::White, FontStyleBold, StringAlignmentNear);
+				//成员图片
+				T_Graph::PaintRegion(ma->GetBmpHandle(), hdc, 150, 240 + yang->GetImageHeight() / 10, 0, 0, ma->GetImageWidth(), ma->GetImageHeight(), (float) 0.1);
+				Content = L"马宁--地图的制作，游戏策划文档编写，NPC属性的记录，大作业文档编写";
+				rect.X = 170 + (REAL)yang->GetImageWidth() / 10;
+				rect.Y = 240 + (REAL)yang->GetImageHeight() / 10;
+				rect.Width = wnd_width - 170 - (REAL)yang->GetImageWidth() / 10;
+				rect.Height = (REAL)yang->GetImageHeight() / 10;
+				FontHeight = 10;
+				T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"楷体", Color::White, FontStyleBold, StringAlignmentNear);
+			}
+			break;
+			case 2:
+			{
+				Content = L"魔塔V1.0 \n";
+				Content.append(L"版本：1.0.0 \n");
+				Content.append(L"作者：6栋222宿舍\n");
+				Content.append(L"Copyright 2018  \n");
+				Content.append(L"All Rights Reserved\n");
+				Content.append(L"保留所有权利\n");
+				rect.X = 60.00;
+				rect.Y = 100.00;
+				rect.Width = float(wnd_width - 120);
+				rect.Height = WIN_HEIGHT - 450;
+				FontHeight = 20;
+				T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
+			}
+			break;
+			default:
+				break;
+			}
+			
 		}
 	break;
 	case GAME_RUN:
@@ -649,7 +721,7 @@ void MoTaGame::DisplayInfo(HDC hdc)
 		rect.Width = (float)wnd_width;
 		rect.Height = (float)wnd_height / 4;
 		FontHeight = 36;
-		T_Graph::PaintText(hdc, rect, GameName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
+	//	T_Graph::PaintText(hdc, rect, GameName, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentCenter);
 	}
 	break;
 	case GAME_PAUSE:
@@ -716,6 +788,17 @@ void MoTaGame::DisplayInfo(HDC hdc)
 			rect.Width = (float)title_wh * 11;
 			rect.Height = (float)3 * title_wh;
 			FontHeight = 10;
+			T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
+		}
+		//买钥匙
+		if (pause_State==7)
+		{
+			Content = L"花费25金币购买如下：";
+			rect.X = (float)(wnd_width - scn_width) / 2;
+			rect.Y = (float)(wnd_height - scn_height) / 2;
+			rect.Width = 33 * 18.00;
+			rect.Height = 33 * 5.00;
+			FontHeight = 20;
 			T_Graph::PaintText(hdc, rect, Content, (REAL)FontHeight, L"黑体", Color::White, FontStyleBold, StringAlignmentNear);
 		}
 	}
@@ -844,6 +927,7 @@ void MoTaGame::Collide(T_Sprite * sp)
 	case 12:
 		GameState = GAME_PAUSE;
 		pause_State = 3;
+		//清除菜单
 		delete gameMenu;
 		gameMenu = NULL;
 		LoadGameMenu(GAME_PAUSE);
@@ -890,7 +974,14 @@ void MoTaGame::Collide(T_Sprite * sp)
 		sp->SetDead(true);
 		player->SetDefense(player->GetDefense() + 300);
 		break;
-	
+	case 18:
+		//碰到钥匙商人
+		GameState = GAME_PAUSE;
+		pause_State = 7;
+		delete gameMenu;
+		gameMenu = NULL;
+		LoadGameMenu(GAME_PAUSE);
+		break;
 	default:
 		break;
 	}
@@ -1064,6 +1155,7 @@ BOOL MoTaGame::IsBattle(T_Sprite * sp)
 //判断是否为同样的怪兽
 BOOL MoTaGame::IsSameMonster(T_Sprite * sp1, T_Sprite * sp2)
 {
+	//只有当各种属性都相同时，才判断为同一种怪兽
 	if (sp1->GetAggressivity() == sp2->GetAggressivity() && sp1->GetDefense() == sp2->GetDefense()
 		&& sp1->GetScore() == sp2->GetScore() && sp1->GetMoney() == sp2->GetMoney())
 	{
@@ -1127,7 +1219,7 @@ void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, 
 		case 2:
 			//水平居中布局的坐标
 			x = i*(m_w + MENU_SPACE) + (wnd_width - 3 * m_w - 2 * MENU_SPACE) / 2;
-			y = wnd_height - 2 * m_h;
+			y = wnd_height - 1 * m_h-20;
 			break;
 		default:
 			break;
@@ -1138,8 +1230,7 @@ void MoTaGame::setMenuPara(wstring * menuItems, int itemSize, int m_w, int m_h, 
 		mItem.ItemName = menuItems[i];
 		gameMenu->AddMenuItem(mItem);
 	}
-	gameMenu->SetMoveSound(mouseOverSound);
-	gameMenu->SetClickSound(mouseDownSound);
+	
 	MENU_INFO menuinfo;
 	menuinfo.align = 1;							//对齐方式
 	menuinfo.space = MENU_SPACE;				//菜单项之间的间隔距离
@@ -1219,6 +1310,11 @@ void MoTaGame::GamePaint(HDC hdc)
 			}
 			break;
 			case 3:
+			{
+				if (gameMenu != NULL) gameMenu->DrawMenu(hdc, 255, false);
+			}
+			break;
+			case 7:
 			{
 				if (gameMenu != NULL) gameMenu->DrawMenu(hdc, 255, false);
 			}
@@ -1393,11 +1489,21 @@ void MoTaGame::GameKeyAction(int Action)
 					{
 						switch (gameMenu->GetMenuIndex())
 						{
-						case 0://返回主菜单
+						case 0:
+							aboutPageIndex = aboutPageIndex - 1;
+							if (aboutPageIndex<0)
+							{
+								aboutPageIndex = 2;
+							}
+							break;
+						case 1://返回主菜单
 							GameState = GAME_START;
 							delete gameMenu;
 							gameMenu = NULL;
 							LoadGameMenu(GAME_START);
+							break;
+						case 2:
+							aboutPageIndex = (aboutPageIndex + 1) % 3;
 							break;
 						default:
 							break;
@@ -1412,16 +1518,20 @@ void MoTaGame::GameKeyAction(int Action)
 						case 0:
 							if (player->GetScore()>25)
 							{
-								player->SetAggressivity(player->GetAggressivity()+5);
+								player->SetAggressivity(player->GetAggressivity()+25);
 								player->SetScore(player->GetScore() - 25);
+								buyThingSound->Restore();
+								buyThingSound->Play(false);
 							}
 							break;
 							//购买防御力
 						case 1:
 							if (player->GetScore()>25)
 							{
-								player->SetDefense(player->GetDefense()+5);
+								player->SetDefense(player->GetDefense()+25);
 								player->SetScore(player->GetScore()-25);
+								buyThingSound->Restore();
+								buyThingSound->Play(false);
 							}
 							break;
 							//返回游戏
@@ -1442,16 +1552,20 @@ void MoTaGame::GameKeyAction(int Action)
 						case 0:
 							if (player->GetMoney()>25)
 							{
-								player->SetAggressivity(player->GetAggressivity() + 5);
+								player->SetAggressivity(player->GetAggressivity() + 25);
 								player->SetMoney(player->GetMoney() - 25);
+								buyThingSound->Restore();
+								buyThingSound->Play(false);
 							}
 							break;
 							//购买防御力
 						case 1:
 							if (player->GetMoney()>25)
 							{
-								player->SetDefense(player->GetDefense() + 5);
+								player->SetDefense(player->GetDefense() + 25);
 								player->SetMoney(player->GetMoney() - 25);
+								buyThingSound->Restore();
+								buyThingSound->Play(false);
 							}
 							break;
 							//返回游戏
@@ -1464,7 +1578,48 @@ void MoTaGame::GameKeyAction(int Action)
 						}
 					}
 
-
+					if (GameState == GAME_PAUSE&&pause_State == 7)
+					{
+						switch (gameMenu->GetMenuIndex())
+						{
+							//购买黄钥匙
+						case 0:
+							if (player->GetMoney()>25)
+							{
+								yellow_key_num++;
+								player->SetMoney(player->GetMoney() - 25);
+								buyThingSound->Restore();
+								buyThingSound->Play(false);
+							}
+							break;
+							//购买蓝钥匙
+						case 1:
+							if (player->GetMoney()>25)
+							{
+								blue_key_num++;
+								player->SetMoney(player->GetMoney() - 25);
+								buyThingSound->Restore();
+								buyThingSound->Play(false);
+							}
+							break;
+							//购买红钥匙
+						case 2:
+							if (player->GetMoney()>25)
+							{
+								red_key_num++;
+								player->SetMoney(player->GetMoney() - 25);
+								buyThingSound->Restore();
+								buyThingSound->Play(false);
+							}
+							break;
+						case 3:
+							GameState = GAME_RUN;
+							pause_State = 0;
+							break;
+						default:
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -1603,11 +1758,21 @@ void MoTaGame::GameMouseAction(int x, int y, int Action)
 				{
 					switch (index)
 					{
-					case 0://返回主菜单
+					case 0://上一页
+						aboutPageIndex = aboutPageIndex - 1;
+						if (aboutPageIndex<0)
+						{
+							aboutPageIndex = 2;
+						}
+						break;
+					case 1://返回主菜单
 						GameState = GAME_START;
 						delete gameMenu;
 						gameMenu = NULL;
 						LoadGameMenu(GAME_START);
+						break;
+					case 2://下一页
+						aboutPageIndex = (aboutPageIndex + 1) % 3;
 						break;
 					default:
 						break;

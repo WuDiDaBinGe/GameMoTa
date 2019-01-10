@@ -13,6 +13,7 @@ private:
 	int wnd_width, wnd_height;	//窗口的宽高
 	int scn_width, scn_height;	//场景的宽高
 	int helpPageIndex;			//帮助菜单标号
+	int aboutPageIndex;			//关于菜单标号
 	int blue_key_num, yellow_key_num, red_key_num;//玩家所拥有的三种三色钥匙的数目
 	int currentLevel;			//当前楼层
 	int arrivedLevel;			//到达过的楼层
@@ -31,6 +32,11 @@ private:
 	T_Graph* redKey;			//状态栏红色钥匙图片
 	T_Graph* blueKey;			//状态栏蓝色钥匙图片
 	T_Graph* player_img;		//状态栏玩家图片
+	//小组成员图片----------------------------------
+	T_Graph* yan;
+	T_Graph* yu;
+	T_Graph* ma;
+	T_Graph* yang;
 	//游戏对象类相关变量-----------------------------
 	T_Scene* t_scene;			//游戏场景
 	T_Menu* gameMenu;			//游戏菜单
@@ -53,6 +59,7 @@ private:
 	AudioDXBuffer* walkSound;		//走路的声音
 	AudioDXBuffer* battingSound;	//战斗声音
 	AudioDXBuffer* getBounsSound;	//获取奖励声音
+	AudioDXBuffer* buyThingSound;		//成功购买物品
 	
 
 public:
